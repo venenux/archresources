@@ -1,4 +1,4 @@
-# arch install Guide 2024
+# arch install Guide 2025
 
 ## Getting Started
 
@@ -31,93 +31,425 @@ guide for everyone.
 2. Find **HTTP Direct Downloads** section and choose any download mirror.
    Select a mirror that is geographically closer to your location.
 
-2. `setfont ter-132b` to set the font bigger if you need it (list is in `/usr/share/kbd/consolefonts`).
-3. Make sure you know what your to-be-linux and EFI partitions are. Check Preinstallation section if needed.
-    1. You can check `lsblk` or `df` outputs if not sure.
-    2. I will call/dev/sdaX — linux partion.
-4. `wifi-menu` if you are a wifi user
-    1. Choose your network. OK.
-    2. OK.
-    3. Enter your password for the network. OK.
-    4. Wait a little till 'root@archlinuxiso' caption appears.
-    5. Don't continue if you cannot connect to a network.
-5. `mkfs.fat -F 32 /dev/sdaY` (it's your EFI partition).
-    1. Make sure you are formatting the right partitions! **There is NO turning back from this point!**. If yes — enter 'y' when promted.
-6. `mkfs.ext4 /dev/sdaX`
-7. `mount /dev/sdaX mnt`
-8. `mount /dev/sdaY mnt/boot`
-9. `pacstrap mnt base base-devel git wget less vim reflector NetworkManager man`
-    1. Go take a cup of tea. It takes time.
-10. `genfstab -U -p mnt >> mnt/etc/fstab`
-11. `arch-chroot mnt`
-    1. If prompted with a different shell — you are on the right way.
-12. `pacman -S {name}` install more packages to your liking.
-    1. `dialog wpa_supplicant` -- for wifi access
-    2. `fish` -- this a cool and nice looking shell alternative to bash. I recommend it, but it's not POSIX!
-13. `reflector -l 50 -f 5 --protocol https --save /etc/pacman.d/mirrorlist --verbose` if you installed reflector
-    1. You can play around with parameters and add `-C 'COUNTRY'` to get results better suited for you.
-    2. If you know what you're doing, you can run `reflector` before `pacstrap` and `cp -f {,mnt}/etc/pacman.d/mirrorlist`
-14. I recommend editing `echo -e "Color\nParallelDownloads = 5" > /etc/pacman.d/user-friendly.conf` to enable some user-friendly options for pacman.
-15. I also recommend adding `echo "PKGEXT='.pkg.tar'" > /etc/makepkg.conf.d/no-compression.conf` to disable compression for AUR packages.
-16. `useradd -m -G wheel -s /usr/bin/fish NAME` or `useradd -m -G wheel NAME` if you haven't installed fish
-17. `passwd`
-    1. Enter password for root.
-18. `passwd NAME`
-    2. Enter password for your user.
-19. `EDITOR=vim visudo`
-    1. press `G` to go the end of the file, than `i` and navigate using arrows to the following text. delete `# ` frm the 2nd line. Then `ESC` and `ZZ`
+3. On the mirror page find archive named like `archlinux-2025.MM.DD-x86_64.iso` 
+   or `archlinux-x86_64.iso`  or any other file with `.iso` suffix. Other files 
+   (like _.txt_, _.tar.gz_ and even _.iso.sig_) are not needed for installation 
+   process.
+
+## Step 02: Preparing installation medium
+
+1. Insert a USB-stick into your PC with at least 2Gb of space available on it. 
+   You can also use a blank cd/dvd/bd rom and burn the iso image, or load into 
+   the qemu cderom slot!
+
+2. If you use USB stick, download https://github.com/balena-io/etcher/releases 
+   and record the ISO downloaded image into the USB stick.
+
+3. If you use CD/DVD rom, put the black disc into the optical device of your 
+   computer device, and then open the burn software to record the image on!
+
+### Step 03: Boot into Arch Linux medium
+
+1. Insert the installation medium into the computer on which you wants install 
+   Arch Linux. If you use qemu just put the iso file into the cdrom slot.
+
+2. Power on your PC and press _boot menu key_. For most vendor based original, 
+   this key is `F12`. For clones computers this could be `ESC` or `F1`.
+
+3. Boot from CD/DVD/USB and wait until boot process is finished.
+
+> Warning: &#128161; IMPORTANT NOTE Many BIOS'es by default come with activated 
+**Secure boot** option. You might need to deactivate it in your BIOS.
+
+## Section 01: Installation setup
+
+Arch linux comes with the famous `arch-install` script, we will avoid it 
+because we will setup disk partition layout and advanced formating.
+
+### Step 04: networking and sync packages
+
+Unfortunatelly Arch linux will need internet connection, you **can avoid this 
+using a offline instalation method**
+
+1. Connect to Network, **if you have wired network, is automatically**, 
+   for WiFi just using `iwctl` and check connection is established:
+
 ```
-## Uncomment to allow members of group wheel to execute any command
-# %wheel ALL=(ALL) ALL
-```
-18. `nano /etc/locale.gen`
-    1. Uncomment next line (for Russian): `ru_RU.UTF-8   UTF-8`
-    2. Uncomment next line (for English): `en_US.UTF-8   UTF-8`
-    3. Save. (Ctrl-X, y, enter)
-    4. You can just use `sed` instead of course: `sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen`
-19. `echo LANG=en_US.UTF-8 > /etc/locale.conf`
-20. `locale-gen`
-21. `ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime`, instead of `Europe/Moscow` use your own timezone!
-22. `bootctl install`
-    1. `systemctl enable systemd-boot-update.service`
-    2. `cp -f /usr/share/systemd/bootctl/loader.conf /boot/loader/loader.conf`
-    3. `cp /usr/share/systemd/bootctl/arch.conf /boot/loader/entries/arch.conf` EDIT this file to have `options root=PARTLABEL=Arch add_efi_memmap rw` at the end
-25. `echo compname > /etc/hostname`if you need to change your host name for some reason
-26.  Install yay.
-  ```bash
-pacman -S --needed git base-devel
-git clone https://aur.archlinux.org/yay-bin.git
-cd yay-bin
-chown NAME:NAME -R .
-su NAME
-makepkg -si
+iwctl
+
+station wlan0 get-networks
+
+station wlan0 connect
+
 exit
-cd ..
-rm -rf yay-bin
-  ```
-27. `exit`
-28. `reboot`
-29. Take your flash drive out!
-30. Login under your user.
 
-## Multiboot
+ping 1.1.1.1
+```
 
-If your Windows system is on the same drive - systemd-boot will handle everything for you. Otherwise there are some additional steps.
+2. Synchronize pacman packaes by run `pacman -Syy`
 
-1. `pacman -S edk2-shell`
-2. `cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi` 
-3. run `blkid` and take a note (a photo for ex) of PARTUUID for your Windows drive
-4. Reboot into EFI Shell (option will be available in systemd-boot menu)
-5. Run `map` and take a not of the FS alias for your Windows drive (ex: HD0a66666a2)
-6. `exit` and reboot into Arch
-7. create a `/boot/windows.nsh` file
-  ```
-  HD0a66666a2:EFI\Microsoft\Boot\Bootmgfw.efi
-  ```
-8. create a `/boot/loader/entries/windows.conf`
-  ```
-title  Windows
-efi     /shellx64.efi
-options -nointerrupt -noconsolein -noconsoleout windows.nsh
-  ```
+### Step 05: Disk partitioning
+
+> Warning: &#128161; IMPORTANT we will use GPT table, otherwise use "o" instead of "g".
+> Warning: &#128161; CAUTION we will use `/dev/nvme0n1` as disk targe, could be `/dev/sda`.
+
+1. Partition main storage device using `fdisk` utility. You can find storage 
+   device name using `lsblk` command.
+
+<dl><dd>
+<pre>
+$ <b>fdisk /dev/nvme0n1</b>
+                <i>[repeat this command until existing partitions are deleted]</i>
+Command (m for help): <b>g</b>
+<span />
+                <i>[create partition 1: efi]</i>
+Command (m for help): <b>n</b>
+Partition number (1-128, default 1): <b>Enter &crarr;</b>
+First sector (..., default 2048): <b>Enter &crarr;</b>
+Last sector ...: <b>+1G</b> <i>systemd-boot need kernels inside</i>
+<span />
+                <i>[create partition 2: main]</i>
+Command (m for help): <b>n</b>
+Partition number (2-128, default 2): <b>Enter &crarr;</b>
+First sector (..., default ...): <b>Enter &crarr;</b>
+Last sector ...: <b>+64G</b> <i>AT least double your RAM size</i>
+<span />
+                <i>[create partition 3: swap]</i>
+Command (m for help): <b>n</b>
+Partition number (3-128, default 3): <b>Enter &crarr;</b>
+First sector (..., default ...): <b>Enter &crarr;</b>
+Last sector ...: <b>+8G</b> <b>Enter &crarr;</b>
+<span />
+                <i>[create partition 4: home]</i>
+Command (m for help): <b>n</b>
+Partition number (4-128, default 4): <b>Enter &crarr;</b>
+First sector (..., default ...): <b>Enter &crarr;</b>
+Last sector ...: <b>Enter &crarr;</b>
+<span />
+                <i>[change partition types]</i>
+Command (m for help): <b>t</b>
+Partition number (1-4, default 1): <b>1</b>
+Partion type or alias (type L to list all): <b>1</b>
+Command (m for help): <b>t</b>
+Partition number (1-4, default 2): <b>2</b>
+Partion type or alias (type L to list all): <b>20</b>
+Command (m for help): <b>t</b>
+Partition number (1-4, default 3): <b>3</b>
+Partion type or alias (type L to list all): <b>19</b>
+Command (m for help): <b>t</b>
+Partition number (1-4, default 4): <b>4</b>
+Partion type or alias (type L to list all): <b>20</b>
+<span />
+                <i>[write partitioning to disk]</i>
+Command (m for help): <b>w</b>
+</pre>
+</dd></dl>
+
+### Step 06: Create filesystem and mounting partitions
+
+> Warning: &#128161; we will format using 1k sector sizes for performance in small files
+
+> Warning: &#128161; only first root partition will be with journaling! for performance
+
+1. Create filesystems on created disk partitions:
+
+```
+mkfs.fat -F 32 -S 1024 -n EFI /dev/nvme0n1p1
+
+mkfs.ext4 -b 1024 -L ROOTAR /dev/nvme0n1p2
+
+tune2fs -O "^encrypt" /dev/nvme0n1p2
+
+tune2fs -O "^quota" /dev/nvme0n1p2
+
+mkswap -L SWAPAR /dev/nvme0n1p3
+
+mkfs.ext4 -b 1024 -L DATAAR /dev/nvme0n1p4
+
+tune2fs -O ^has_journal /dev/nvme0n1p4
+
+tune2fs -O "^encrypt" /dev/nvme0n1p4
+
+tune2fs -O "^quota" /dev/nvme0n1p4
+```
+
+2. Correctly mount all filesystems to the `/mnt`:
+
+```
+mkdir -p /mnt/boot/efi /mnt/home
+
+mount -t ext4 -o rw,relatime,exec,dev,suid,barrier=0,errors=remount-ro,commit=1800 /dev/nvme0n1p2 /mnt
+
+mount -t vfat -o rw,relatime,umask=0077,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro /dev/nvme0n1p1 /mnt/boot/efi
+
+mount -t ext4 -o rw,noatime,exec,nodev,nosuid,barrier=0,errors=remount-ro,commit=1800 /dev/nvme0n1p4 /mnt/home
+
+swapon /dev/nvme0n1p3
+```
+
+### Step 07: Installing the base system
+
+3. Install essential packages into new filesystem and generate fstab:
+
+```
+pacstrap -i /mnt base linux linux-firmware doas nano base-devel git wget less networkmanager man-db iptables mkinitcpio gawk perl psmisc
+
+genfstab -U -p /mnt > /mnt/etc/fstab
+```
+
+### Step 08: Basic configuration and boot of new system
+
+4. Chroot into freshly created filesystem by run `arch-chroot /mnt`
+
+5. Setup system locale and timezone, sync hardware clock with system clock:
+
+```
+sed -i s|#en_US.UTF-8|en_US.UTF-8|g /etc/locale.gen
+
+locale-gen
+
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+ln -sf /usr/share/zoneinfo/America/Panama /etc/localtime
+
+hwclock --systohc
+```
+
+6. Setup system hostname:
+
+```
+echo archisshit > /etc/hostname
+
+cat > /etc/hosts << EOF
+127.0.0.1 localhost
+::1       localhost
+127.0.1.1 archisshit
+EOF
+
+hostnamectl set-hostname archisshit
+```
+
+7. Add new users and setup passwords:
+
+```
+pacman -S bash
+
+useradd -m -G wheel,storage,power,audio,video,disk,games,users,network,input,lp,optical -s /bin/bash general
+
+passwd root
+
+passwd general
+```
+
+8. Add wheel group to doas file to allow users to run doas-sudo-shim command from AUR repos in future:
+
+```
+cat > /etc/doas.conf << EOF
+permit nopass root
+permit nopass :wheel
+EOF
+```
+
+
+9. Install administrative packages and enable post network minimal environment
+
+```
+pacman -S mc aspell cabextract gawk p7zip unace unarj unrar unzip zip doas bash coreutils nano
+
+pacman -S dhcpcd networkmanager systemd-resolvconf openssh libfido2
+
+systemctl enable dhcpcd
+
+systemctl enable NetworkManager
+
+systemctl enable systemd-resolved
+
+systemctl enable sshd
+```
+
+10. Install and configure EFI using systemd to next boot of the system, 
+   unless GRUB, systemd-boot it only supports UEFI, it doesn’t have all the 
+   advanced features of grub (e.g. save boot, snapshot boot), and so also 
+   **Your kernels must be kept inside your ESP (EFI System Partition)** so 
+   it needs to be large enough to hold them all, more than 512MiB size, then 
+   due that all the updates to kernel must be copied to efi partition!
+
+```
+pacman -S efibootmgr
+
+bootctl install
+
+systemctl enable systemd-boot-update.service
+
+cp -f /boot/*.img /boot/vmlinuz* /boot/efi/
+
+cp -f /usr/share/systemd/bootctl/loader.conf /boot/efi/loader/loader.conf
+
+ROOTUID=$(grep -E '/ +|\t/ +' /etc/fstab | sed 's/   */:/g' | cut -d: -f1 | cut -f1 | cut -d' ' -f1 | grep -v "#" | head -n1)
+
+CMDLINE="loglevel=3 efi=runtime elevator=noop vsyscall=emulated iommu=on acpi_enforce_resources=lax noaslr iomem=relaxed"
+
+cat > /boot/efi/loader/entries/arch.conf << EOF
+title   Arch Linux
+linux   /vmlinuz-linux
+initrd  /initramfs-linux.img
+options root=$ROOTUID add_efi_memmap $CMDLINE
+EOF
+```
+
+11. Exit chroot, unmount all disks and reboot:
+
+```
+exit
+
+umount /mnt/boot/efi
+
+umount /mnt/home
+
+umount /mnt
+
+reboot
+```
+
+## Section 02: Configuring userspace after initial system setup &#127919;
+
+This is depending of your needs, in this case we setup a MATE desktop with 
+alternate Openbox/mate minimal desktop. We choose MATE becouse is the only 
+mayor desktop with equilibrated performance and features, XFCE4 is so ugly!
+
+### Prerequisites
+
+1. Already pass and performs all of the section 1 above!
+2. Reboot and start in your new disk with Arch Linux installation.
+3. We assumed the networking setup from previous sectioin!
+4. Install the `opendoas` package with `pacman -S opendoas doas`
+5. login with the user `general` we configured previously
+
+### Step 09: Basic configuration of userspace
+
+1. Activate time syncronization using NTP:
+
+```
+doas timedatectl set-ntp true
+```
+
+2. Install common desktop utilities, console utilities, bluetooth and sound support
+
+```
+doas pacman -S \
+ aspell cabextract gawk p7zip unace unarj unrar unzip zip doas bash coreutils nano \
+ dialog intel-ucode fuse2 lshw powertop acpi htop tree socat lsof unhide psmisc \
+ wget rsync aria2 base-devel git less groff bash-completion yazi ueberzugpp \
+ dbus iw wpa_supplicant tcpdump mtr net-tools ethtool openbsd-netcat procps-ng \
+ alsa-oss alsa-plugins alsa-ucm-conf pulseaudio pavucontrol sof-firmware alsa-firmware \
+ pango lxappearance uget dunst fehfl flameshot gsimplecal
+
+doas pacman -S bluez bluez-utils blueman
+
+doas systemctl enable bluetooth
+```
+
+### Step 10 enable the AUR repository management
+
+Pacman only handles updates for pre-built packages in its repositories. 
+AUR packages are redistributed in form of PKGBUILDs and need an AUR helper 
+to automate the re-build process. However, keep in mind that a rebuild of a 
+package may be required when its shared library dependencies are updated, 
+not only when the package itself is updated.
+
+```
+doas pacman -S sudo base-devel git
+
+mkdir -p /home/general/Devel && /home/general/Devel
+
+git clone https://aur.archlinux.org/yay.git
+
+cd yay && makepkg -is
+```
+
+### Step 11: tuneup the hardware support
+
+1. **Enable hibernation support** We wil use the first partition only, if you 
+   want another one, must be configured manually, those steps only setup 
+   automatically the first one! We will detect SWAP partition and then..
+   Open GRUB configuration file and add resume UUID to the line boot, 
+   all of those commands must be run as root and not using `sudo` or `doas` 
+   becouse the variable expansion will not be parsed to `GRUB_CMDLINE_LINUX_DEFAULT`
+   so then you can hibernate your system using: `systemctl hibernate`
+
+```
+grep swap /etc/fstab | sed 's/   */:/g' | cut -d: -f1 | cut -f1 | cut -d' ' -f1 | grep -v "#" | head -n1
+
+sed -i s/HOOKS.*/HOOKS=(base udev resume autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)/ /etc/mkinitcpio.conf
+
+mkinitcpio -p linux
+
+cp -f /boot/*.img /boot/vmlinuz* /boot/efi/
+
+PSWAP=$(grep swap /etc/fstab | sed 's/   */:/g' | cut -d: -f1 | cut -f1 | cut -d' ' -f1 | grep -v "#" | head -n1)
+
+ROOTUID=$(grep -E '/ +|\t/ +' /etc/fstab | sed 's/   */:/g' | cut -d: -f1 | cut -f1 | cut -d' ' -f1 | grep -v "#" | head -n1)
+
+CMDLINE="loglevel=3 efi=runtime elevator=noop vsyscall=emulated iommu=on acpi_enforce_resources=lax noaslr iomem=relaxed"
+
+cat > /boot/efi/loader/entries/arch.conf << EOF
+title   Arch Linux
+linux   /vmlinuz-linux
+initrd  /initramfs-linux.img
+options root=$ROOTUID add_efi_memmap resume=$PSWAP $CMDLINE
+EOF
+```
+
+> Warning: &#128161; Those hooks dont assume encripted filesystems, neither raid setups!
+
+> Warning: &#128161; all of those commands cannot be run using `sudo` or `doas`
+
+2. **Enable printing support on your PC**: also optionally install hp plugins 
+   for firmware updates b using `doas hpsetup -i`
+
+```
+doas pacman -S cups cups-filters cups-pdf system-config-printer
+
+doas systemctl enable cups.service
+
+doas pacman -S \
+ foomatic-db-engine foomatic-db-nonfree-ppds foomatic-db-nonfree \
+ hplip gutenprint foomatic-db-gutenprint-ppds
+
+doas cups-genppdupdate
+```
+
+3. **[Optional] Improve laptop battery usage with TLP** - 
+   this utility that basically does kernel settings tweaking but over desktops 
+   machines will decrease performance.. **only use if you are on laptop** 
+
+```
+doas pacman -S tlp tlp-rdw
+
+doas systemctl enable tlp
+
+doas systemctl enable NetworkManager-dispatcher.service
+
+doas systemctl mask systemd-rfkill.service
+
+doas systemctl mask systemd-rfkill.socket
+```
+
+4. **[Optional] use avahi services to auto discover devices**, you can browse 
+   manually by run `avahi-browse --all` aftyer avahi setup and install:
+
+```
+doas pacman -S avahi nss-mdns
+
+doas sed -i s/.*disallow-other-stacks.*/disallow-other-stacks=yes/ /etc/avahi/avahi-daemon.conf
+
+doas systemctl enable avahi-daemon.service
+
+doas systemctl start avahi-daemon.service
+```
+
+## Section 03: Userspace desktop setup
+
+Se next tutorial: [arch-postinstallation.md](arch-postinstallation.md)
+
 
