@@ -380,7 +380,7 @@ cd yay && makepkg -is
 ```
 grep swap /etc/fstab | sed 's/   */:/g' | cut -d: -f1 | cut -f1 | cut -d' ' -f1 | grep -v "#" | head -n1
 
-sed -i s/HOOKS.*/HOOKS=(base udev resume autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)/ /etc/mkinitcpio.conf
+sed -i s/HOOKS.*/"HOOKS=(base udev resume autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)"/ /etc/mkinitcpio.conf
 
 mkinitcpio -p linux
 

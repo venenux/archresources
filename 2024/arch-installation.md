@@ -381,7 +381,7 @@ sed -i s/"GRUB_CMDLINE_LINUX_DEFAULT=\""/"GRUB_CMDLINE_LINUX_DEFAULT=\"resume=$P
 
 grub-mkconfig -o /boot/grub/grub.cfg
 
-sed -i s/HOOKS.*/HOOKS=(base udev resume autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)/ /etc/mkinitcpio.conf
+sed -i s/HOOKS.*/"HOOKS=(base udev resume autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)"/ /etc/mkinitcpio.conf
 
 mkinitcpio -p linux
 ```
