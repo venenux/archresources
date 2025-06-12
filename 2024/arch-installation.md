@@ -190,7 +190,7 @@ swapon /dev/nvme0n1p3
 4. Install essential packages into new filesystem and generate fstab:
 
 ```
-pacstrap -i /mnt base linux linux-firmware doas nano base-devel git wget less networkmanager man-db iptables mkinitcpio gawk perl psmisc
+pacstrap -i /mnt base linux linux-firmware doas nano base-devel git wget less networkmanager man-db iptables mkinitcpio gawk perl psmisc arch-install-scripts
 
 genfstab -U -p /mnt > /mnt/etc/fstab
 ```
@@ -337,7 +337,11 @@ doas pacman -S \
  wget rsync aria2 base-devel git less groff bash-completion yazi ueberzugpp \
  dbus iw wpa_supplicant tcpdump mtr net-tools ethtool openbsd-netcat procps-ng \
  alsa-oss alsa-plugins alsa-ucm-conf pulseaudio pavucontrol sof-firmware alsa-firmware \
- pango lxappearance uget dunst fehfl flameshot gsimplecal
+ word aspell hunspell nano \
+ aspell-en aspell-de aspell-it aspell-es hunspell-es_any aspell-ru \
+ hunspell-en_us hunspell-en_gb hunspell-es_ve hunspell-es_ar hunspell-ru \
+ hyphen-en hyphen-de hyphen-fr hyphen-it hyphen-nl hunspell-es_mx hunspell-es_pa \
+ mythes-en mythes-de mythes-fr mythes-it mythes-nl mythes-pl
 
 doas pacman -S bluez bluez-utils blueman
 
@@ -363,6 +367,8 @@ cd yay && makepkg -is
 ```
 
 ### Step 11: tuneup the hardware support
+
+> **WARNING**: this section just improve the hardware support for better desktop experience
 
 1. **Enable hibernation support** We wil use the first partition only, if you 
    want another one, must be configured manually, those steps only setup 
@@ -436,6 +442,6 @@ doas systemctl start avahi-daemon.service
 
 ## Section 03: Userspace desktop setup
 
-Se next tutorial: [arch-postinstallation.md](arch-postinstallation.md)
+Se next tutorial: [arch-user-desktop.md](arch-user-desktop.md)
 
 
