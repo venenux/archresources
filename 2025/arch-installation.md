@@ -106,7 +106,7 @@ Command (m for help): <b>g</b>
 Command (m for help): <b>n</b>
 Partition number (1-128, default 1): <b>Enter &crarr;</b>
 First sector (..., default 2048): <b>Enter &crarr;</b>
-Last sector ...: <b>+1G</b> <i>systemd-boot need kernels inside</i>
+Last sector ...: <b>+512M</b>
 <span />
                 <i>[create partition 2: main]</i>
 Command (m for help): <b>n</b>
@@ -151,7 +151,7 @@ Command (m for help): <b>w</b>
 
 > Warning: &#128161; only first root partition will be with journaling! for performance
 
-1. Create filesystems on created disk partitions:
+2. Create filesystems on created disk partitions:
 
 ```
 mkfs.fat -F 32 -S 1024 -n EFI /dev/nvme0n1p1
@@ -173,7 +173,7 @@ tune2fs -O "^encrypt" /dev/nvme0n1p4
 tune2fs -O "^quota" /dev/nvme0n1p4
 ```
 
-2. Correctly mount all filesystems to the `/mnt`:
+3. Correctly mount all filesystems to the `/mnt`:
 
 ```
 mkdir -p /mnt/boot/efi /mnt/home
@@ -189,10 +189,10 @@ swapon /dev/nvme0n1p3
 
 ### Step 07: Installing the base system
 
-3. Install essential packages into new filesystem and generate fstab:
+4. Install essential packages into new filesystem and generate fstab:
 
 ```
-pacstrap -i /mnt base linux linux-firmware doas nano base-devel git wget less networkmanager man-db iptables mkinitcpio gawk perl psmisc
+pacstrap -i /mnt base linux linux-firmware doas nano base-devel git wget less networkmanager man-db iptables mkinitcpio gawk perl psmisc arch-install-scripts
 
 genfstab -U -p /mnt > /mnt/etc/fstab
 ```
@@ -342,6 +342,11 @@ doas pacman -S \
  wget rsync aria2 base-devel git less groff bash-completion yazi ueberzugpp \
  dbus iw wpa_supplicant tcpdump mtr net-tools ethtool openbsd-netcat procps-ng \
  alsa-oss alsa-plugins alsa-ucm-conf pulseaudio pavucontrol sof-firmware alsa-firmware \
+ word aspell hunspell nano \
+ aspell-en aspell-de aspell-it aspell-es hunspell-es_any aspell-ru \
+ hunspell-en_us hunspell-en_gb hunspell-es_ve hunspell-es_ar hunspell-ru \
+ hyphen-en hyphen-de hyphen-fr hyphen-it hyphen-nl hunspell-es_mx hunspell-es_pa \
+ mythes-en mythes-de mythes-fr mythes-it mythes-nl mythes-pl \
  pango lxappearance uget dunst fehfl flameshot gsimplecal
 
 doas pacman -S bluez bluez-utils blueman
@@ -368,6 +373,8 @@ cd yay && makepkg -is
 ```
 
 ### Step 11: tuneup the hardware support
+
+> **WARNING**: this section just improve the hardware support for better desktop experience
 
 1. **Enable hibernation support** We wil use the first partition only, if you 
    want another one, must be configured manually, those steps only setup 
@@ -450,6 +457,6 @@ doas systemctl start avahi-daemon.service
 
 ## Section 03: Userspace desktop setup
 
-Se next tutorial: [arch-postinstallation.md](arch-postinstallation.md)
+Se next tutorial: [arch-user-desktop.md](arch-user-desktop.md)
 
 
