@@ -37,7 +37,7 @@ yay -Syu gtk3 galculator tint2 gmrun pavucontrol arandr xinit-xsession mesa \
  ttf-dejavu ttf-bitstream-vera xorg-fonts-75dpi xorg-fonts-100dpi xorg-xdpyinfo \
  pcmanfm libfm-extra menu-cache gvfs simple-scan gvfs-gphoto2 gvfs-mtp \
  gvfs-afc ifuse gvfs-goa gvfs-onedrive gvfs-google gvfs-wsdd gvfs-smb \
- openbox lxappearance lxappearance-obconf jgmenu tint2 xvkbd viewnior
+ openbox lxappearance lxappearance-obconf jgmenu tint2 xvkbd viewnior python-pyxdg
 
 yay -Syu gtk-nocsd-git
 
