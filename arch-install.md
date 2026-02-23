@@ -78,6 +78,7 @@ In your linux you must have installed the following packages:
 
 * arch-install-script >= 28
 * pacman-package-manager > 5
+* makepkg + archlinux-keyring
 * coreutils >= v8.15
 * util-linux >= 2.39
 * gawk or awk
@@ -97,7 +98,7 @@ HoldPkg = pacman glibc
 Architecture = auto
 CheckSpace
 ParallelDownloads = 5
-SigLevel = Optional
+SigLevel = Never
 
 [core]
 Include = /etc/pacman.d/mirrorlist
@@ -105,6 +106,8 @@ Include = /etc/pacman.d/mirrorlist
 [extra]
 Include = /etc/pacman.d/mirrorlist
 EOF
+
+mkdir /etc/pacman.d/mirrorlist
 
 cat > /etc/pacman.d/mirrorlist << EOF
 Server = http://mirror.csclub.uwaterloo.ca/archlinux/\$repo/os/\$arch
@@ -224,9 +227,9 @@ tune2fs -O "^quota" /dev/nvme0n1p4
 3. Correctly mount all filesystems to the `/mnt`:
 
 ```
-mkdir -p /mnt/boot/efi /mnt/home
-
 mount -t ext4 -o rw,relatime,exec,dev,suid,barrier=0,errors=remount-ro,commit=1800 /dev/nvme0n1p2 /mnt
+
+mkdir -p /mnt/boot/efi /mnt/home
 
 mount -t vfat -o rw,relatime,umask=0077,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro /dev/nvme0n1p1 /mnt/boot/efi
 
