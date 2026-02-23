@@ -77,10 +77,39 @@ the another linux start from the disk partitioning step and that is all.
 In your linux you must have installed the following packages:
 
 * arch-install-script >= 28
+* pacman-package-manager > 5
 * coreutils >= v8.15
 * util-linux >= 2.39
 * gawk or awk
 * bash >= 4.1
+
+Then if you have this packages in any linux do the necesary configs (those 
+are not necesary if ytou are running ArchLinux from live disc)
+
+```
+pacman-key --init
+
+pacman-key --populate archlinux
+
+cat > /etc/pacman.conf << EOF
+[options]
+HoldPkg = pacman glibc
+Architecture = auto
+CheckSpace
+ParallelDownloads = 5
+SigLevel = Optional
+
+[core]
+Include = /etc/pacman.d/mirrorlist
+
+[extra]
+Include = /etc/pacman.d/mirrorlist
+EOF
+
+cat > /etc/pacman.d/mirrorlist << EOF
+Server = http://mirror.csclub.uwaterloo.ca/archlinux/\$repo/os/\$arch
+EOF
+```
 
 ### Step 04: networking and sync packages
 
@@ -88,6 +117,7 @@ Unfortunatelly Arch linux will need internet connection, you **can avoid this
 using a offline instalation method** if boot from arch live disk!
 
 If you already has a running linux with network, skip to the next step!
+Also skip to next if you linux must be configured in another way!
 
 1. Connect to Network, **if you have wired network, is automatically**, 
    for WiFi just using `iwctl` and check connection is established:
@@ -207,10 +237,10 @@ swapon /dev/nvme0n1p3
 
 ### Step 07: Installing the base system
 
-4. Install essential packages into new filesystem and generate fstab:
+4. Create base and essential packages into new filesystem and generate fstab:
 
 ```
-pacstrap -i /mnt base linux-lts linux-lts-headerslinux-firmware doas nano base-devel git wget less networkmanager man-db iptables mkinitcpio gawk perl psmisc arch-install-scripts
+pacstrap -i /mnt base doas arch-install-scripts nano iptables
 
 genfstab -U -p /mnt > /mnt/etc/fstab
 ```
@@ -218,6 +248,13 @@ genfstab -U -p /mnt > /mnt/etc/fstab
 ### Step 08: Basic configuration and boot of new system
 
 4. Chroot into freshly created filesystem by run `arch-chroot /mnt`
+
+```
+arch-chroot /mnt
+
+pacman -S --noconfirm linux-lts linux-lts-headers linux-firmware mkinitcpio \
+ base-devel git wget less networkmanager man-db iptables gawk perl psmisc doas
+```
 
 5. Setup system locale and timezone, sync hardware clock with system clock:
 
@@ -250,7 +287,7 @@ hostnamectl set-hostname archisshit
 7. Add new users and setup passwords:
 
 ```
-pacman -S bash
+pacman -S --noconfirm bash
 
 useradd -m -G audio,video,disk,games,users,network,input,optical -s /bin/bash general
 
@@ -265,7 +302,7 @@ passwd general
 cat > /etc/doas.conf << EOF
 permit nopass root
 permit nopass :wheel
-permit pass general
+permit general
 EOF
 ```
 
@@ -273,21 +310,17 @@ EOF
 9. Install administrative packages and enable post network minimal environment
 
 ```
-pacman -S mc cabextract gawk 7zip zip doas bash coreutils nano nawk elfutils
+pacman -S --noconfirm mc cabextract gawk 7zip zip doas coreutils nano nawk elfutils
 
-pacman -S dhcpcd networkmanager systemd-resolvconf openssh libfido2
+pacman -S --noconfirm dhcpcd networkmanager systemd-resolvconf openssh libfido2
 
-systemctl enable NetworkManager
-
-systemctl enable systemd-resolved
-
-systemctl enable sshd
+systemctl enable NetworkManager systemd-resolved sshd
 ```
 
 10. Install and configure EFI using GRUB manager
 
 ```
-pacman -S efibootmgr grub os-prober
+pacman -S --noconfirm efibootmgr grub os-prober
 
 grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=ArchLinux --removable
 

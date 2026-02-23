@@ -36,7 +36,7 @@ yay -Syu gtk3 galculator tint2 gmrun pavucontrol arandr xinit-xsession mesa \
  xdotool xautomation xorg-xkill desktop-file-utils polkit-gnome polkit \
  ttf-dejavu ttf-bitstream-vera xorg-fonts-75dpi xorg-fonts-100dpi xorg-xdpyinfo \
  pcmanfm libfm-extra menu-cache gvfs simple-scan gvfs-gphoto2 gvfs-mtp \
- gvfs-afc ifuse gvfs-goa gvfs-onedrive gvfs-google gvfs-wsdd gvfs-smb \
+ gvfs-afc ifuse gvfs-goa gvfs-onedrive gvfs-google gvfs-wsdd gvfs-smb libx11 \
  openbox lxappearance lxappearance-obconf jgmenu tint2 xvkbd viewnior python-pyxdg
 
 yay -Syu gtk-nocsd-git
@@ -127,7 +127,7 @@ yay -Syu --needed gstreamer gst-plugins-base-libs gst-plugins-bad gst-plugin-gif
  gst-plugin-gtk gst-plugin-gtk4 gst-plugin-mp4 gst-plugins-good gst-plugins-ugly \
  ffmpeg gst-libav mpv sox alsa-plugins libavtp libsamplerate libcamera-tools \
  pulseaudio pavucontrol pulseaudio-equalizer pulseaudio-bluetooth pulseaudio-alsa \
- zathura zathura-pdf-poppler zathura-djvu zathura-cb jack2
+ zathura zathura-pdf-poppler zathura-djvu zathura-cb jack2 tilix gtkd liblphobos
 ```
 
 ## Anex
