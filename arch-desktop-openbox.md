@@ -34,7 +34,7 @@ yay -Syu --noconfirm --needed gtk3 galculator tint2 pavucontrol arandr mesa \
  gtk-update-icon-cache gtkmm3 gtkmm-4.0 xdg-user-dirs-gtk shared-mime-info \
  libxrandr libxinerama libxcursor libxtst libxss lightdm lightdm-gtk-greeter \
  accountsservice xf86-input-libinput xf86-input-evdev libinput xorg-xinput \
- xdotool xautomation xorg-xkill desktop-file-utils polkit-gnome polkit \
+ xdotool xautomation xorg-xkill desktop-file-utils polkit-gnome polkit xarchiver \
  ttf-dejavu ttf-bitstream-vera xorg-fonts-75dpi xorg-fonts-100dpi xorg-xdpyinfo \
  pcmanfm libfm-extra menu-cache gvfs simple-scan gvfs-gphoto2 gvfs-mtp \
  gvfs-afc ifuse gvfs-goa gvfs-onedrive gvfs-google gvfs-wsdd gvfs-smb libx11 \

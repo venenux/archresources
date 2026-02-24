@@ -23,14 +23,16 @@ if you want direct communication. https://t.me/+W94Jx4A4AzdkMmYx
 free to submit a pull request. Your contributions can help enhance the clarity 
 of the guide for everyone. - https://codeberg.org/venenux/archresources/fork
 
-## Preinstallation
+## Phase 0 - Preinstallation medium
 
-1. This guide assume a linux OS running, if not use any linux live disk or VenenuX
-2. If you already has a running linux use as base and go mto the section 1 below
+* This guide assume a linux OS running, if not use any linux live disk or VenenuX
+* All those commmands are running under root administrator user only.
+* If you already has a running linux skip to Phase 01 section to install
 
-## Step 01: Downloading Arch Linux image
+#### Downloading Arch Linux live CD/DVD image
 
-1. Go to Arch Linux downloads page https://archlinux.org/download/
+1. Go to Arch Linux downloads page https://archlinux.org/download/ but if 
+   you already has a running linux skip step 01 and go to the section 1 below.
 
 2. Find **HTTP Direct Downloads** section and choose any download mirror.
    Select a mirror that is geographically closer to your location.
@@ -40,53 +42,53 @@ of the guide for everyone. - https://codeberg.org/venenux/archresources/fork
    (like _.txt_, _.tar.gz_ and even _.iso.sig_) are not needed for installation 
    process.
 
-## Step 02: Preparing installation medium
+#### Preparing live linux installation medium
 
-1. Insert a USB-stick into your PC with at least 2Gb of space available on it. 
-   You can also use a blank cd/dvd/bd rom and burn the iso image, or load into 
-   the qemu cderom slot!
+*. Insert a USB-stick into your PC with at least 2Gb of space available on it. 
+    You can also use a blank cd/dvd/bd rom and burn the iso image, or load into 
+    the qemu cderom slot!
 
-2. If you use USB stick, download https://github.com/balena-io/etcher/releases 
+* If you use USB stick, download https://github.com/balena-io/etcher/releases 
    and record the ISO downloaded image into the USB stick.
 
-3. If you use CD/DVD rom, put the black disc into the optical device of your 
+* If you use CD/DVD rom, put the black disc into the optical device of your 
    computer device, and then open the burn software to record the image on!
 
-### Step 03: Boot into Arch Linux medium
+#### Boot into Arch Linux live medium
 
-1. Insert the installation medium into the computer on which you wants install 
+* Insert the installation medium into the computer on which you wants install 
    Arch Linux. If you use qemu just put the iso file into the cdrom slot.
 
-2. Power on your PC and press _boot menu key_. For most vendor based original, 
+* Power on your PC and press _boot menu key_. For most vendor based original, 
    this key is `F12`. For clones computers this could be `ESC` or `F1`.
 
-3. Boot from CD/DVD/USB and wait until boot process is finished.
+* Boot from CD/DVD/USB and wait until boot process is finished.
+   take note **Secure boot** option need to be turned off it in your BIOS.
 
-> Warning: &#128161; IMPORTANT NOTE Many BIOS'es by default come with activated 
-**Secure boot** option. You might need to deactivate it in your BIOS.
-
-## Section 01: Installation setup
+## Phase 01: Installation setup
 
 Arch linux comes with **the famous `arch-install` script, we will avoid it** 
 because we will setup disk partition layout and advanced formating.
 
-### Step 03: Instead of Boot into Arch Linux medium, use any linux running
+#### Step 01: Use the live medium or use the running linux
 
 This also works for instalation inside another linux. How? easy, just using 
 the another linux start from the disk partitioning step and that is all.
-In your linux you must have installed the following packages:
 
-* arch-install-script >= 28
-* pacman-package-manager > 5
-* makepkg + archlinux-keyring
-* coreutils >= v8.15
-* util-linux >= 2.39
-* gawk or awk
-* bash >= 4.1
-* dosfstools (EFI mounting partition)
+* **1**. In **your linux or live medium must have installed following packages**:
 
-Then if you have this packages in any linux do the necesary configs (those 
-are not necesary if ytou are running ArchLinux from live disc)
+* arch-install-script >= 28 https://gitlab.archlinux.org/archlinux/arch-install-scripts/-/releases
+* pacman-package-manager > 5 https://gitlab.archlinux.org/pacman/pacman/-/releases
+* makepkg + archlinux-keyring https://gitlab.archlinux.org/pacman/pacman/-/releases
+* coreutils >= v8.15 https://www.gnu.org/software/coreutils/#download
+* util-linux >= 2.39 https://www.kernel.org/pub/linux/utils/util-linux/
+* gawk or awk https://ftp.gnu.org/gnu/gawk/
+* bash >= 4.1 http://tiswww.case.edu/php/chet/bash/bashtop.html#Availability
+* dosfstools (EFI mounting partition) https://github.com/dosfstools/dosfstools/releases
+
+* **2**. Then if you have this packages in any linux do the necesary configs 
+(those are not necesary if you are running ArchLinux from live disc), so then 
+run as root user following commands in the current running/live linux:
 
 ```
 pacman-key --init
@@ -115,16 +117,12 @@ Server = http://mirror.csclub.uwaterloo.ca/archlinux/\$repo/os/\$arch
 EOF
 ```
 
-### Step 04: networking and sync packages
+#### Step 02: networking and sync packages
 
-Unfortunatelly Arch linux will need internet connection, you **can avoid this 
-using a offline instalation method** if boot from arch live disk!
-
-If you already has a running linux with network, skip to the next step!
-Also skip to next if you linux must be configured in another way!
-
-1. Connect to Network, **if you have wired network, is automatically**, 
-   for WiFi just using `iwctl` and check connection is established:
+* **3**  Arch linux need internet connection, to sync package originis, 
+Also skip to next if your linux must be configured in another way! so 
+Connect to Network, **if you have wired network, is automatically**, 
+for WiFi just using `iwctl` and check connection is established as root user:
 
 ```
 iwctl
@@ -138,20 +136,22 @@ exit
 ping 1.1.1.1
 ```
 
-2. Synchronize pacman packaes by run `pacman -Syy`
+* **4** Synchronize pacman packaes by runing the following command as root user:
 
-### Step 05: Disk partitioning
+```
+pacman -Syu
+```
 
-> Warning: &#128161; IMPORTANT we will use GPT table, otherwise use "o" instead of "g".
-> Warning: &#128161; CAUTION we will use `/dev/nvme0n1` as disk target, could be `/dev/sda`.
 
-1. Partition main storage device using `fdisk` utility. You can find storage 
-   device name using `lsblk` command.
+#### Step 03: Disk partitioning
+
+* **5** Partition the main storage device using `fdisk` utility. You can find 
+storage device name using `lsblk -o NAME,MODEL,SIZE` command. Run as root user:
 
 <dl><dd>
 <pre>
 $ <b>fdisk /dev/nvme0n1</b>
-                <i>[repeat this command until existing partitions are deleted]</i>
+                <i>[this command will erase all partition to clean the disk]</i>
 Command (m for help): <b>g</b>
 <span />
                 <i>[create partition 1: efi]</i>
@@ -197,13 +197,9 @@ Command (m for help): <b>w</b>
 </pre>
 </dd></dl>
 
-### Step 06: Create filesystem and mounting partitions
+### Step 04: Create filesystem and mounting partitions
 
-> Warning: &#128161; we will format using 1k sector sizes for performance cos small files
-
-> Warning: &#128161; only first root partition will be with journaling! for performance
-
-2. Create filesystems on created disk partitions:
+* **6** Create filesystems on disk partitions, run as root user those commands:
 
 ```
 mkfs.fat -F 32 -S 1024 -n EFI /dev/nvme0n1p1
@@ -216,51 +212,59 @@ tune2fs -O "^quota" /dev/nvme0n1p2
 
 mkswap -L SWAPAR /dev/nvme0n1p3
 
-mkfs.ext4 -b 1024 -L DATAAR /dev/nvme0n1p4
-
-tune2fs -O ^has_journal /dev/nvme0n1p4
+mkfs.ext4 -b 1024 -L HOMEAR /dev/nvme0n1p4
 
 tune2fs -O "^encrypt" /dev/nvme0n1p4
 
 tune2fs -O "^quota" /dev/nvme0n1p4
 ```
 
-3. Correctly mount all filesystems to the `/mnt`:
+* **7** Mount all filesystems to the `/mnt` in running linux as root user:
 
 ```
+mkdir -p /mnt
+
 mount -t ext4 -o rw,relatime,exec,dev,suid,barrier=0,errors=remount-ro,commit=1800 /dev/nvme0n1p2 /mnt
 
 mkdir -p /mnt/boot/efi /mnt/home
 
-mount -t vfat -o rw,relatime,umask=0077,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro /dev/nvme0n1p1 /mnt/boot/efi
+mount -t vfat -o rw,umask=0077,iocharset=ascii,shortname=mixed /dev/nvme0n1p1 /mnt/boot/efi
 
 mount -t ext4 -o rw,noatime,exec,nodev,nosuid,barrier=0,errors=remount-ro,commit=1800 /dev/nvme0n1p4 /mnt/home
 
 swapon /dev/nvme0n1p3
 ```
 
-### Step 07: Installing the base system
+### Step 05: Installing the base system
 
-4. Create base and essential packages into new filesystem and generate fstab:
+* **8** Create base system into new filesystem and generate fstab, run as root:
 
 ```
-pacstrap -i /mnt base doas arch-install-scripts nano iptables
+pacstrap -i /mnt base nano iptables
 
 genfstab -U -p /mnt > /mnt/etc/fstab
 ```
 
-### Step 08: Basic configuration and boot of new system
+### Step 06: Basic configuration base system
 
-4. Chroot into freshly created filesystem by run `arch-chroot /mnt`
+* **9** Chroot into freshly created filesystem by run as root user this command:
 
 ```
 arch-chroot /mnt
-
-pacman -Syu --noconfirm linux-lts linux-lts-headers linux-firmware mkinitcpio \
- base-devel git wget less networkmanager man-db iptables gawk perl psmisc doas
 ```
 
-5. Setup system locale and timezone, sync hardware clock with system clock:
+* **10** The console terminal will look similar or equal BUT IS NOT THE SAME, 
+cos now you are inside the new installed system linux, the process allows to 
+use the new filesystem of the new linux but limited, so then run those commands 
+inside the "chrooted" environment:
+
+```
+pacman -Syu --noconfirm linux-lts linux-lts-headers linux-firmware mkinitcpio \
+ base-devel git wget less networkmanager man-db iptables gawk perl psmisc \
+ doas arch-install-scripts
+```
+
+* **11** Still inside "chrooted" setup locale, clock and timezone, run those commands:
 
 ```
 pacman -Syu --noconfirm sed
@@ -276,7 +280,7 @@ ln -sf /usr/share/zoneinfo/America/Panama /etc/localtime
 hwclock --systohc
 ```
 
-6. Setup system hostname:
+* **12** Still inside "chrooted" setup system hostname by run those commands:
 
 ```
 echo archisshit > /etc/hostname
@@ -290,7 +294,9 @@ EOF
 hostnamectl set-hostname archisshit
 ```
 
-7. Add new users and setup passwords:
+### Step 07: Basic configuration elevation privilegies and users
+
+* **13** Still inside "chrooted" add new users and setup passwords by run:
 
 ```
 pacman -S --noconfirm bash
@@ -302,9 +308,11 @@ passwd root
 passwd general
 ```
 
-8. Add wheel group to doas file to allow users to run doas-sudo-shim command from AUR repos in future:
+* **14** Still inside "chrooted" setup elevation "doas" privilegies by run:
 
 ```
+pacman -Syu --noconfirm doas
+
 cat > /etc/doas.conf << EOF
 permit nopass root
 permit nopass :wheel
@@ -312,28 +320,31 @@ permit general
 EOF
 ```
 
+## Phase 02: Booting configuration setup
 
-9. Install administrative packages and enable post network minimal environment
+We will only use grub and UEFI, for BIOS just don use the EFI parameters!
+
+### Step 08: Configuring boot of the new system
+
+* **15** Still inside "chrooted" install network minimal environment for next boot:
 
 ```
-pacman -S --noconfirm mc cabextract gawk 7zip zip doas coreutils nano nawk elfutils
-
 pacman -S --noconfirm dhcpcd networkmanager systemd-resolvconf openssh libfido2
 
 systemctl enable NetworkManager systemd-resolved sshd
 ```
 
-10. Install and configure EFI using GRUB manager
+* **16** Still inside "chrooted" install and configure EFI using GRUB manager:
 
 ```
 pacman -S --noconfirm efibootmgr grub os-prober
 
-grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=Windlux --removable
+grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=Archit --removable
 
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-11. Exit chroot, unmount all disks and reboot:
+* **17** Still inside "chrooted", now you can exit chroot, unmount all and reboot:
 
 ```
 exit
@@ -347,29 +358,31 @@ umount /mnt
 reboot
 ```
 
-## Section 02: Configuring userspace after initial system setup &#127919;
+## Phase 03: Configuring userspace initial system startup
 
-This is depending of your needs, in this case we setup a MATE desktop with 
-alternate Openbox/mate minimal desktop. We choose MATE becouse is the only 
-mayor desktop with equilibrated performance and features, XFCE4 is so ugly!
+The base system and boot are set, but now we alredy need/have this:
 
-### Prerequisites
-
-1. Already pass and performs all of the section 1 above!
-2. Reboot and start in your new disk with Arch Linux installation.
-3. We assumed the networking setup from previous sectioin!
-4. Install the `opendoas` package with `pacman -S opendoas doas`
-5. login with the user `general` we configured previously
+* Already pass and performs all of the section 1 above!
+* Reboot and start in your new disk with Arch Linux installation.
+* We assumed the networking setup from previous sectioin!
+* Install the `opendoas` package with `pacman -S opendoas doas`
+* login with the user `general` we configured previously
 
 ### Step 09: Basic configuration of userspace
 
-1. Activate time syncronization using NTP:
+* **18** Activate time syncronization using NTP:
 
 ```
 timedatectl set-ntp true
 ```
 
-2. Install common desktop utilities, console utilities, extending the base system
+* **19** Install minimal administrative packages
+
+```
+pacman -S --noconfirm mc cabextract gawk 7zip zip doas coreutils nano nawk elfutils
+```
+
+* **20** Install common desktop utilities, console utilities
 
 ```
 pacman -Syu --noconfirm --needed doas lesspipe perl xz ncurses nano \
@@ -384,12 +397,12 @@ pacman -Syu --noconfirm --needed doas lesspipe perl xz ncurses nano \
  parcellite perl-x11-protocol xorg-xprop xdotool xorg-xwininfo accountsservice
 ```
 
-3. Compresion and archiving utilities
+* **21** Compresion and archiving utilities
 
 ```
 pacman -Syu --noconfirm arj binutils bzip2 cpio gzip lhasa lrzip lz4 7zip tar \
  xz zstd unarj unzip unrar libunrar rarcrack \
- atool xarchiver file
+ atool file
 ```
 
 ### Step 10 enable the AUR repository management and makepkg
@@ -622,5 +635,20 @@ pacman -S --noconfirm aspell hunspell nano \
 
 
 Se next tutorial: [arch-desktop-openbox.md](arch-desktop-openbox.md)
+
+## Warning and advertices
+
+> **Warning**: we will use GPT table, otherwise use "o" instead of "g".
+
+> **Warning**: we will use `/dev/nvme0n1` as diskdrive, could be `/dev/sda`.
+
+> **Warning**: format with 1k sector sizes its for performance of small files
+
+> **Warning**: we use `wlan0` for example, but check with `ip add` command.
+
+> Warning: &#128161; this will use the running linux as fake new linux install, 
+it means that mounted filesystems in the running linux, will be used indirectly 
+as a new running linux. The ArchLinux will be installed in the partitions.
+
 
 
