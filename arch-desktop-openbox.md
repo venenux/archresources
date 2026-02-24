@@ -22,13 +22,14 @@ of the guide for everyone. - https://codeberg.org/venenux/archresources/fork
 
 ## Section 01 desktop minimal Openbox
 
-
 ### Step 01 desktop base packages
 
 Those packages will bring base applicartions to use any minimal desktop
 
 ```
-yay -Syu gtk3 galculator tint2 gmrun pavucontrol arandr xinit-xsession mesa \
+su general
+
+yay -Syu --noconfirm --needed gtk3 galculator tint2 pavucontrol arandr mesa \
  archlinux-xdg-menu xdg-utils upower gdk-pixbuf2 gdk-pixbuf-xlib xorg-xinit \
  gtk-update-icon-cache gtkmm3 gtkmm-4.0 xdg-user-dirs-gtk shared-mime-info \
  libxrandr libxinerama libxcursor libxtst libxss lightdm lightdm-gtk-greeter \
@@ -37,11 +38,11 @@ yay -Syu gtk3 galculator tint2 gmrun pavucontrol arandr xinit-xsession mesa \
  ttf-dejavu ttf-bitstream-vera xorg-fonts-75dpi xorg-fonts-100dpi xorg-xdpyinfo \
  pcmanfm libfm-extra menu-cache gvfs simple-scan gvfs-gphoto2 gvfs-mtp \
  gvfs-afc ifuse gvfs-goa gvfs-onedrive gvfs-google gvfs-wsdd gvfs-smb libx11 \
- openbox lxappearance lxappearance-obconf jgmenu tint2 xvkbd viewnior python-pyxdg
+ openbox lxappearance lxappearance-obconf jgmenu tint2 viewnior python-pyxdg
 
-yay -Syu gtk-nocsd-git
+yay -Syu --noconfirm --needed gtk-nocsd-git xvkbd gmrun xinit-xsession
 
-cat > /etc/X11/xinit/xinitrc.d/51gtk-nocsd.sh << EOF
+doas cat > /etc/X11/xinit/xinitrc.d/51-gtk-nocsd.sh << EOF
 #!/bin/sh
           if [ -z "\$GTK_CSD" ] ; then
               GTK_CSD=0
@@ -51,14 +52,22 @@ cat > /etc/X11/xinit/xinitrc.d/51gtk-nocsd.sh << EOF
               export LD_PRELOAD="/usr/lib/libgtk-nocsd.so.0\${LD_PRELOAD:+:\$LD_PRELOAD}"
           fi
 EOF
+doas chmod 755 /etc/X11/xinit/xinitrc.d/51-gtk-nocsd.sh
+
+exit
 ```
 
 ### Step 02 preparation of X11
 
 ```
-cat > /etc/X11/Xwrapper.config < EOF
+cat > /etc/X11/Xwrapper.config << EOF
 needs_root_rights = yes
 EOF
+
+pacman -Syu --noconfirm --needed linux-firmware-amdgpu  linux-firmware-radeon \
+ linux-firmware-intel linux-firmware-nvidia linux-firmware-radeon linux-firmware-other \
+ radeontop xf86-video-amdgpu xf86-video-ati xf86-input-libinput xf86-video-intel \
+ xf86-video-nouveau mesa vulkan-radeon vulkan-intel mesa-utils
 
 cat > /etc/X11/xorg.conf.d/20-intel.conf << EOF
       Section "Device"
@@ -84,10 +93,10 @@ systemctl start lightdm.service
 * networking packages
 
 ```
-yay -Syu gtk4 nm-connection-editor network-manager-applet iso-codes \
+pacman -Syu --noconfirm --needed gtk4 nm-connection-editor network-manager-applet \
  mobile-broadband-provider-info modemmanager usb_modeswitch ppp wpa_supplicant \
  dhcpcd net-tools nmap networkmanager-pptp networkmanager-openconnect \
- networkmanager-vpnc networkmanager-openvpn bluez gnome-nettool
+ networkmanager-vpnc networkmanager-openvpn bluez gnome-nettool iso-codes
 
 systemctl enable ModemManager
 
@@ -101,33 +110,39 @@ systemctl start NetworkManager
 * remote management preparation
 
 ```
-yay -Syu nomachine anydesk-bin dkms nawk elfutils lsb-release
+su general
 
-systemctl enable nxserver.service anydesk.service
+yay -Syu --noconfirm --needed nomachine anydesk-bin dkms nawk elfutils lsb-release
 
-systemctl start nxserver
+doas systemctl enable nxserver.service anydesk.service
 
-systemctl start anydesk
+doas systemctl start nxserver
+
+doas systemctl start anydesk
 ```
 
 ### Step 04 general user
 
 ```
-useradd -m -s /bin/bash general
+doas useradd -m -s /bin/bash general
 
-usermod -a -G audio,video,disk,games,input,optical,power,storage general
+doas usermod -a -G audio,video,disk,games,input,optical,power,storage general
 
-usermod -a  -G adm,log,users,lp,kvm,network general
+doas usermod -a  -G adm,log,users,lp,kvm,network general
 ```
 
 ### Step 05 multimedia pacakges
 
 ```
-yay -Syu --needed gstreamer gst-plugins-base-libs gst-plugins-bad gst-plugin-gif \
+su general
+
+yay -Syu --noconfirm gst-plugins-base-libs gst-plugins-bad gst-plugin-gif \
  gst-plugin-gtk gst-plugin-gtk4 gst-plugin-mp4 gst-plugins-good gst-plugins-ugly \
  ffmpeg gst-libav mpv sox alsa-plugins libavtp libsamplerate libcamera-tools \
  pulseaudio pavucontrol pulseaudio-equalizer pulseaudio-bluetooth pulseaudio-alsa \
- zathura zathura-pdf-poppler zathura-djvu zathura-cb jack2 tilix gtkd liblphobos
+ zathura zathura-pdf-poppler zathura-djvu zathura-cb jack2 gstreamer
+
+exit
 ```
 
 ## Anex
@@ -136,17 +151,25 @@ yay -Syu --needed gstreamer gst-plugins-base-libs gst-plugins-bad gst-plugin-gif
 ### Step 06 using only gtk2 packages
 
 ```
-yay -Syu gtk2 gtk-engines gtkglext gtkmm gtkrc-reload gtkspell gksu \
+su general
+
+yay -Syu --noconfirm gtk2 gtk-engines gtkglext gtkmm gtkrc-reload gtkspell gksu \
  ttf-dejavu ttf-bitstream-vera light-locker-settings yad-gtk2 \
  leafpad mount-gtk2 xvkbd gxmessage terminus-font-td1
+
+exit
 ```
 
 ### Step 07 extended multimedia base
 
 ```
-yay -Syu --needed gst-plugin-rsclosedcaption tesseract tesseract-data-eng \
- qt5gtk2 qt6-base qt6gtk2 qt6-multimedia-gstreamer qt6-multimedia-ffmpeg \
- gnome-mplayer gnome-disk-utility strawberry hardinfo2
+su general
+
+yay -Syu --noconfirm --needed gst-plugin-rsclosedcaption tesseract-data-eng \
+ qt5gtk2 qt6gtk2 qt6-base qt6gtk2 qt6-multimedia-gstreamer qt6-multimedia-ffmpeg \
+ gnome-mplayer gnome-disk-utility strawberry hardinfo2 tilix gtkd liblphobos
+
+exit
 ```
 
 ### Step 08 development tools for desktops

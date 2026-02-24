@@ -83,6 +83,7 @@ In your linux you must have installed the following packages:
 * util-linux >= 2.39
 * gawk or awk
 * bash >= 4.1
+* dosfstools (EFI mounting partition)
 
 Then if you have this packages in any linux do the necesary configs (those 
 are not necesary if ytou are running ArchLinux from live disc)
@@ -255,14 +256,16 @@ genfstab -U -p /mnt > /mnt/etc/fstab
 ```
 arch-chroot /mnt
 
-pacman -S --noconfirm linux-lts linux-lts-headers linux-firmware mkinitcpio \
+pacman -Syu --noconfirm linux-lts linux-lts-headers linux-firmware mkinitcpio \
  base-devel git wget less networkmanager man-db iptables gawk perl psmisc doas
 ```
 
 5. Setup system locale and timezone, sync hardware clock with system clock:
 
 ```
-sed -i s|#en_US.UTF-8|en_US.UTF-8|g /etc/locale.gen
+pacman -Syu --noconfirm sed
+
+sed -i 's|#en_US.UTF-8|en_US.UTF-8|g' /etc/locale.gen
 
 locale-gen
 
@@ -325,7 +328,7 @@ systemctl enable NetworkManager systemd-resolved sshd
 ```
 pacman -S --noconfirm efibootmgr grub os-prober
 
-grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=ArchLinux --removable
+grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=Windlux --removable
 
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
@@ -363,33 +366,33 @@ mayor desktop with equilibrated performance and features, XFCE4 is so ugly!
 1. Activate time syncronization using NTP:
 
 ```
-doas timedatectl set-ntp true
+timedatectl set-ntp true
 ```
 
 2. Install common desktop utilities, console utilities, extending the base system
+
 ```
-doas pacman -Syu doas lesspipe perl xdg-utils xz ncurses nano \
+pacman -Syu --noconfirm --needed doas lesspipe perl xz ncurses nano \
  cabextract gawk tar 7zip unace unarj unrar unzip zip doas bash coreutils \
  dialog intel-ucode fuse3 lshw powertop acpi htop tree socat lsof unhide \
  wget rsync aria2 base-devel git less groff bash-completion unhide rkhunter \
  dbus psmisc tcpdump mtr net-tools ethtool openbsd-netcat procps-ng \
  alsa-oss alsa-plugins alsa-ucm-conf sof-firmware alsa-firmware \
- pulseaudio pulsemixer pulseaudio-alsa xvkbd gxmessage \
- libfm-extra libfm-gtk3 gtk3 gvfs pango cairo jgmenu perl-net-dbus libcanberra \
+ pulseaudio pulsemixer pulseaudio-alsa gxmessage libcanberra \
+ libfm-extra libfm-gtk3 gtk3 gvfs pango cairo jgmenu perl-net-dbus xdg-utils \
  pcmanfm sakura lxappearance uget notification-daemon scrot gsimplecal xarchiver \
  parcellite perl-x11-protocol xorg-xprop xdotool xorg-xwininfo accountsservice
-
 ```
 
 3. Compresion and archiving utilities
 
 ```
-pacman -Syu arj binutils bzip2 cpio gzip lhasa lrzip lz4 7zip tar \
+pacman -Syu --noconfirm arj binutils bzip2 cpio gzip lhasa lrzip lz4 7zip tar \
  xz zstd unarj unzip unrar libunrar rarcrack \
  atool xarchiver file
 ```
 
-### Step 10 enable the AUR repository management
+### Step 10 enable the AUR repository management and makepkg
 
 Pacman only handles updates for pre-built packages in its repositories. 
 AUR packages are redistributed in form of PKGBUILDs and need an AUR helper 
@@ -400,13 +403,102 @@ not only when the package itself is updated.
 ```
 su general
 
-doas pacman -S base-devel git
+doas pacman -S base-devel git go
 
-mkdir -p /home/general/Devel && /home/general/Devel
+mkdir -p /home/general/Devel && cd /home/general/Devel
 
-cd ~/Devel && git clone https://aur.archlinux.org/yay-bin.git
+cd ~/Devel && git clone https://aur.archlinux.org/yay.git
 
-cd yay-bin && makepkg -si
+cd yay && makepkg && rm yay-debug*zst
+
+doas pacman -U --noconfirm ~/Devel/yay/yay*.zst
+
+cd ~/Devel && git clone https://aur.archlinux.org/doas-sudo-shim-k.git
+
+cd doas-sudo-shim-k && makepkg && rm -f doas-debug*zst
+
+doas pacman -R --noconfirm sudo base-devel
+
+doas pacman -U --noconfirm ~/Devel/doas-sudo-shim-k/doas-sudo-shim-k*.zst
+
+doas mkdir -p /usr/src/makepkg
+
+doas pacman -Syu base-devel git go
+
+doas chown general:wheel /usr/src/makepkg
+
+doas chmod 775 /usr/src/makepkg
+```
+
+Now lest configure themost important file of AUR packages, the `/etc/makepkg.conf`
+This cannot be done using a command, so you must open the file for editing:
+`doas nano /etc/makepkg.conf`  and then sustitute all the contents with this:
+
+``` bash
+#!/hint/bash
+DLAGENTS=('file::/usr/bin/curl -qgC - -o %o %u'
+          'ftp::/usr/bin/curl -qgfC - --ftp-pasv --retry 3 --retry-delay 3 -o %o %u'
+          'http::/usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o %o %u'
+          'https::/usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o %o %u'
+          'rsync::/usr/bin/rsync --no-motd -z %u %o'
+          'scp::/usr/bin/scp -C %u %o')
+VCSCLIENTS=('bzr::breezy'
+            'fossil::fossil'
+            'git::git'
+            'hg::mercurial'
+            'svn::subversion')
+CARCH="x86_64"
+CHOST="x86_64-pc-linux-gnu"
+CFLAGS="-march=generic -mtune=generic -O3 -pipe -fno-plt -fexceptions \
+        -Wp,-D_FORTIFY_SOURCE=1 -Wno-error=format-security \
+        -fstack-clash-protection -fcf-protection -Wno-incompatible-pointer-types \
+        -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -g0 -fno-lto \
+        -Wno-unused-but-set-variable -Wno-error=deprecated-declarations -Wall -Wextra"
+CPPFLAGS="$CFLAGS"
+CXXFLAGS="$CFLAGS -Wp,-D_GLIBCXX_ASSERTIONS"
+LDFLAGS="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,pack-relative-relocs"
+LTOFLAGS="-flto=auto"
+MAKEFLAGS="-j4"
+DEBUG_CFLAGS="-g0 -fno-lto"
+DEBUG_CXXFLAGS="$DEBUG_CFLAGS"
+BUILDENV=(!distcc color !ccache check !sign)
+BUILDDIR=/usr/src/makepkg
+OPTIONS=(strip docs !libtool !staticlibs emptydirs zipman purge !debug !lto)
+INTEGRITY_CHECK=(sha256)
+STRIP_BINARIES="--strip-all"
+STRIP_SHARED="--strip-unneeded"
+STRIP_STATIC="--strip-debug"
+MAN_DIRS=({usr{,/local}{,/share},opt/*}/{man,info})
+DOC_DIRS=(usr/{,local/}{,share/}{doc,gtk-doc} opt/*/{doc,gtk-doc})
+PURGE_TARGETS=(usr/{,share}/info/dir .packlist *.pod)
+DBGSRCDIR="/usr/src/debug"
+LIB_DIRS=('lib:usr/lib' 'lib32:usr/lib32')
+COMPRESSGZ=(gzip -c -f -n)
+COMPRESSBZ2=(bzip2 -c -f)
+COMPRESSXZ=(xz -c -z -)
+COMPRESSZST=(zstd -c -T0 -)
+COMPRESSLRZ=(lrzip -q)
+COMPRESSLZO=(lzop -q)
+COMPRESSZ=(compress -c -f)
+COMPRESSLZ4=(lz4 -q)
+COMPRESSLZ=(lzip -c -f)
+PKGEXT='.pkg.tar.zst'
+SRCEXT='.src.tar.gz'
+```
+
+The tuned part here you cna change is `march` and `tune` change `generic` with 
+the arch spcific cpu of your computer.
+
+* **HOW TO DETERMINE `-march` BEST VALUE:
+
+```
+gcc -march=native -Q --help=target | grep -- '-march=' | cut -f3 | head -n1
+```
+
+* **HOW TO DETERMINE `-mtune` BEST VALUE:
+
+```
+gcc -mtune=native -Q --help=target | grep -- '-mtune=' | cut -f3 | head -n1
 ```
 
 ### Step 11: tuneup the hardware support
@@ -416,14 +508,16 @@ cd yay-bin && makepkg -si
 1. **Extend hardware support**
 
 ```
-pacman -Syu wpa_supplicant os-prober grub ntfs-3g dkms \
+su general
+
+yay -Syu --noconfirm wpa_supplicant os-prober grub ntfs-3g dkms \
  psmisc ncurses procps-ng net-tools rkhunter unhide alsa-utils \
  lshw acpi htop tree socat lsof unhide psmisc usb_modeswitch \
  libgudev udisks2 log2ram bluez bluez-utils blueman arandr upower
 
-systemctl enable bluetooth
+doas systemctl enable bluetooth
 
-systemctl enable log2ram.service log2ram-daily.timer
+doas systemctl enable log2ram.service log2ram-daily.timer
 ```
 
 1. **Refine boot initrd and hibernation support** We wil use the first partition 
@@ -460,22 +554,24 @@ sed -i s/GRUB_SAVEDEFAULT.*/"GRUB_SAVEDEFAULT=false"/ /etc/default/grub
 
 sed -i s/GRUB_GFXPAYLOAD_LINUX.*/"GRUB_GFXPAYLOAD_LINUX=keep"/ /etc/default/grub
 
-sed -i s/GRUB_DISABLE_LINUX_UUID.*/"GRUB_DISABLE_LINUX_UUID=false"/ /etc/default/grub
+sed -i s/.*GRUB_DISABLE_LINUX_UUID.*/"GRUB_DISABLE_LINUX_UUID=false"/ /etc/default/grub
 
-sed -i s/GRUB_DISABLE_OS_PROBER.*/"GRUB_DISABLE_OS_PROBER=false"/ /etc/default/grub
+sed -i s/.*GRUB_DISABLE_OS_PROBER.*/"GRUB_DISABLE_OS_PROBER=false"/ /etc/default/grub
 
 grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=ArchLinux --removable
+
+grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
 2. **Enable printing support on your PC**: also optionally install hp plugins 
    for firmware updates b using `doas hpsetup -i`
 
 ```
-doas pacman -S cups cups-filters cups-pdf system-config-printer
+doas pacman -S --noconfirm cups cups-filters cups-pdf system-config-printer
 
 doas systemctl enable cups.service
 
-doas pacman -S \
+doas pacman -S --noconfirm \
  foomatic-db-engine foomatic-db-nonfree-ppds foomatic-db-nonfree \
  hplip gutenprint foomatic-db-gutenprint-ppds
 
@@ -487,7 +583,7 @@ doas cups-genppdupdate
    machines will decrease performance.. **only use if you are on laptop** 
 
 ```
-doas pacman -S tlp tlp-rdw
+doas pacman -S --noconfirm tlp tlp-rdw
 
 doas systemctl enable tlp
 
@@ -502,7 +598,7 @@ doas systemctl mask systemd-rfkill.socket
    manually by run `avahi-browse --all` aftyer avahi setup and install:
 
 ```
-doas pacman -S avahi nss-mdns
+doas pacman -S --noconfirm avahi nss-mdns
 
 doas sed -i s/.*disallow-other-stacks.*/disallow-other-stacks=yes/ /etc/avahi/avahi-daemon.conf
 
@@ -516,11 +612,11 @@ doas systemctl start avahi-daemon.service
 1. Enable wordlist and dictionary support on system
 
 ```
-pacman -S  word aspell hunspell nano \
+pacman -S --noconfirm aspell hunspell nano \
  aspell-en aspell-de aspell-it aspell-es hunspell-es_any aspell-ru \
  hunspell-en_us hunspell-en_gb hunspell-es_ve hunspell-es_ar hunspell-ru \
  hyphen-en hyphen-de hyphen-fr hyphen-it hyphen-nl hunspell-es_mx hunspell-es_pa \
- mythes-en mythes-de mythes-fr mythes-it mythes-nl mythes-pl \
+ mythes-en mythes-de mythes-fr mythes-it mythes-nl mythes-pl
  
 ```
 
