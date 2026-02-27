@@ -392,9 +392,11 @@ pacman -Syu --noconfirm --needed doas lesspipe perl xz ncurses nano \
  dbus psmisc tcpdump mtr net-tools ethtool openbsd-netcat procps-ng \
  alsa-oss alsa-plugins alsa-ucm-conf sof-firmware alsa-firmware \
  pulseaudio pulsemixer pulseaudio-alsa gxmessage libcanberra \
+ otf-atkinson-hyperlegible ttf-atkinson-hyperlegible otf-droid-nerd \
  libfm-extra libfm-gtk3 gtk3 gvfs pango cairo jgmenu perl-net-dbus xdg-utils \
  pcmanfm sakura lxappearance uget notification-daemon scrot gsimplecal xarchiver \
- parcellite perl-x11-protocol xorg-xprop xdotool xorg-xwininfo accountsservice
+ parcellite perl-x11-protocol xorg-xprop xdotool xorg-xwininfo gprename \
+ accountsservice hicolor-icon-theme
 ```
 
 * **21** Compresion and archiving utilities
@@ -403,6 +405,13 @@ pacman -Syu --noconfirm --needed doas lesspipe perl xz ncurses nano \
 pacman -Syu --noconfirm arj binutils bzip2 cpio gzip lhasa lrzip lz4 7zip tar \
  xz zstd unarj unzip unrar libunrar rarcrack \
  atool file
+```
+
+* **22** Filesystems support for external storage devices
+
+```
+pacman -Syu --noconfirm exfatprogs dosfstools f2fs-tools e2fsprogs ntfs-3g \
+ erofs-utils squashfs-tools udftools xfsprogs
 ```
 
 ### Step 10 enable the AUR repository management and makepkg

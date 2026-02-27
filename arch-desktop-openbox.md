@@ -140,7 +140,8 @@ yay -Syu --noconfirm gst-plugins-base-libs gst-plugins-bad gst-plugin-gif \
  gst-plugin-gtk gst-plugin-gtk4 gst-plugin-mp4 gst-plugins-good gst-plugins-ugly \
  ffmpeg gst-libav mpv sox alsa-plugins libavtp libsamplerate libcamera-tools \
  pulseaudio pavucontrol pulseaudio-equalizer pulseaudio-bluetooth pulseaudio-alsa \
- zathura zathura-pdf-poppler zathura-djvu zathura-cb jack2 gstreamer
+ zathura zathura-pdf-poppler zathura-djvu zathura-cb jack2 gstreamer \
+ graphviz mediainfo perl-image-exiftool
 
 exit
 ```
@@ -153,8 +154,11 @@ exit
 ```
 su general
 
-yay -Syu --noconfirm gtk2 gtk-engines gtkglext gtkmm gtkrc-reload gtkspell gksu \
- ttf-dejavu ttf-bitstream-vera light-locker-settings yad-gtk2 \
+yay -Syu  ttf-dejavu ttf-bitstream-vera light-locker-settings yad-gtk2
+
+yay -Syu --noconfirm gtk2
+
+yay -Syu --noconfirm gtk-engines gtkglext gtkmm gtkrc-reload gtkspell gksu \
  leafpad mount-gtk2 xvkbd gxmessage terminus-font-td1
 
 exit
