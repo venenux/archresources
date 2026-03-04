@@ -28,7 +28,14 @@ Login as "general" user as we previously show you in previous guides.
 ```
 yay -Syu --noconfirm less man-db perl-libwww ruby-svn2git git mercurial \
  devtools base-devel openssh binutils bison make cmake autoconf-archive \
- jdk-openjdk
+ jdk-openjdk nano
+```
+
+Configure editor
+
+```
+export EDITOR=nano
+export VISUAL=nano
 ```
 
 ### Step 02 install codium IDE and editors
