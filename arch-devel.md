@@ -28,7 +28,7 @@ Login as "general" user as we previously show you in previous guides.
 ```
 yay -Syu --noconfirm less man-db perl-libwww ruby-svn2git git mercurial \
  devtools base-devel openssh binutils bison make cmake autoconf-archive \
- jdk-openjdk nano
+ jdk-openjdk nano nodejs-lts-krypton npm
 ```
 
 Configure editor
@@ -46,7 +46,7 @@ Login as "general" user as we previously show you in previous guides.
 
 ```
 yay -Syu --noconfirm --needed code code-features code-marketplace \
- sakura gnome-keyring meld dbeaver orbada
+ sakura gnome-keyring meld dbeaver
 ```
 
 ### Step 03 install SQL base tools
