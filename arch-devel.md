@@ -19,6 +19,46 @@ if you want direct communication. https://t.me/+W94Jx4A4AzdkMmYx
 free to submit a pull request. Your contributions can help enhance the clarity 
 of the guide for everyone. - https://codeberg.org/venenux/archresources/fork
 
+### Step 00 optional install rsyslog and log2ram and logrotate
+
+1. we must install those because:
+    * rsyslog para archivos planos de log y registro
+    * log2ram para no gastar disco SSD o sea lenta la escritura
+    * logrotate para que los archivos planos no molesten
+2. active the rsyslog and logrotate to generate small files
+3. configure log2ram to use more ram so all those files fit in!
+4. configure systemd to use less space so log2ram do not waste space
+
+```
+yay -Syu rsyslog logrotate log2ram
+
+grep -q "imjournal" /etc/rsyslog.conf || sudo sed -i '/\$ModLoad imklog/a $ModLoad imjournal   # provides systemd traps' /etc/rsyslog.conf
+
+systemctl enable --now rsyslog
+
+systemctl start rsyslog
+
+sed -i 's/\bweekly\b/daily/g' /etc/logrotate.conf
+
+sed -i 's/\bweekly\b/daily/g' /etc/logrotate.conf
+
+sed -i 's/\bsize\s\+.*/size 5M/g' /etc/logrotate.conf
+
+sed -i 's/\brotate\s\+.*/rotate 1/g' /etc/logrotate.conf
+
+systemctl restart logrotate
+
+sed -i 's/^SIZE=.*/SIZE=1512M/' /etc/log2ram.conf
+
+journalctl --vacuum-size=32M
+
+sed -i -E 's/^[# ]*SystemMaxUse=.*/SystemMaxUse=128M/' /etc/systemd/journald.conf
+
+systemctl disable log2ram-daily.timer
+
+systemctl enable log2ram
+```
+
 ### Step 01 install base devel tools
 
 Those are need to build and clean others package and external projects.
@@ -27,7 +67,7 @@ Login as "general" user as we previously show you in previous guides.
 
 ```
 yay -Syu --noconfirm less man-db perl-libwww ruby-svn2git git mercurial \
- devtools base-devel openssh binutils bison make cmake autoconf-archive \
+ devtools base-devel openssh binutils lld bison make cmake autoconf-archive \
  jdk-openjdk nano nodejs-lts-krypton npm
 ```
 
@@ -57,6 +97,67 @@ Login as "general" user as we previously show you in previous guides.
 
 ```
 yay -Syu mariadb-lts-clients mysql-workbench sqlitebrowser sqlite
+```
+
+### Step 05 install docker
+
+Login as "general" user as we previously show you in previous guides. 
+
+```
+doas pacman -Syu docker docker-buildx docker-compose qemu-user-static qemu-user-static-binfmt
+
+systemctl disable --now docker.service
+
+systemctl enable docker.socket
+
+systemctl start docker.socket
+
+usermod -a -G docker general
+```
+
+> **Warning** this guide will use a different disk/patch for docker layers!
+ so your main disks will not be harmed by the piece of shit named docker
+
+We will use /dev/sde3 fpr docker layers so your main SDD-s never will be harmed:
+
+```
+mkdir -p /etc/docker
+mkdir -p /etc/containerd
+mkdir -p /srv/docker
+mkdir -p /srv/docker/dockerd
+mkdir -p /srv/docker/containerd
+
+cat > /etc/docker/daemon.json << EOF
+{
+  "data-root": "/srv/docker/dockerd"
+}
+EOF
+
+cat > /etc/containerd/config.toml << EOF
+version = 2
+root = "/srv/docker/containerd"
+EOF
+
+mkfs.ext3 -b 1024 -L DOCKERS /dev/sde3
+
+mount /dev/sdd3 /srv/docker --mkdir -o rw,commit=3600,relatime,nodiratime,dev,exec,suid,nobarrier,errors=remount-ro
+
+cat >> /etc/fstab << EOF
+/dev/sde3           /srv/docker ext3      rw,nodiratime,relatime,nobarrier,errors=remount-ro,commit=3600 0 2
+EOF
+
+mkdir -p /srv/docker/dockerd
+mkdir -p /srv/docker/containerd
+
+systemctl daemon-reload
+
+systemctl restart docker.socket
+```
+
+> **Warning** now we use manager for docker containers
+
+```
+doas pacman -Syu ducker lazydocker
 ```
 
 ## NOTES
