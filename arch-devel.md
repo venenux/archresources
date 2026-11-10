@@ -30,7 +30,13 @@ of the guide for everyone. - https://codeberg.org/venenux/archresources/fork
 4. configure systemd to use less space so log2ram do not waste space
 
 ```
-yay -Syu rsyslog logrotate log2ram
+mkdir -p /home/general/Devel && cd /home/general/Devel
+
+git clone https://github.com/hartmark/libfastjson-aur
+
+cd /home/general/Devel/libfastjson-aur && makepkg -i --skippgpcheck
+
+yay -Syu --needed rsyslog logrotate log2ram
 
 grep -q "imjournal" /etc/rsyslog.conf || sudo sed -i '/\$ModLoad imklog/a $ModLoad imjournal   # provides systemd traps' /etc/rsyslog.conf
 
