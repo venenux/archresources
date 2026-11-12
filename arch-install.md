@@ -2,93 +2,71 @@
 
 ## Getting Started
 
-Welcome to the **VenenuX Arch Linux tutorials for AMD64 computers** because 
-ArchLinux only are for AMD64 machines!!
-
-It has been carefully created based on the very bad own exp of installation 
-on multiple devices over the years. **It uses GRUB! not shitstemd-boot.**
-
-Unfortunatelly for older devices we must recommend Haiku OS (2000 to 2012) or
-then VenenuX (2010 to 2021) because Arch linux is only for some recent devices!
-**This guide only works for most recent up to 2026** older ones must check the 
-[2024](2024) or [2025](2025) or [2026](2026) or [archive](archive) subdirectories.
+**Notes on installing VenenuX Arch Linux on AMD64 UEFI systems**
 
 #### Support and Feedback
 
 **Issues**: If you come across any problems or have specific questions, please open 
-an issue on the Codeberg repository for this guide. Use Telegram OpenTech group 
-if you want direct communication. https://t.me/+W94Jx4A4AzdkMmYx
-
-**Pull Requests**: If you have improvements or additions to the guide, feel 
-free to submit a pull request. Your contributions can help enhance the clarity 
-of the guide for everyone. - https://codeberg.org/venenux/archresources/fork
+an issue on the Codeberg repository. More direct, you can post comments on Telegram 
+https://t.me/opentechnologies or https://t.me/latam_programadores or also 
+if you want direct communication join to https://t.me/+W94Jx4A4AzdkMmYx
 
 ## Phase 0 - Preinstallation medium
 
-* This guide assume a linux OS running, if not use any linux live disk or VenenuX
-* All those commmands are running under root administrator user only.
-* If you already has a running linux skip to Phase 01 section to install
+* Use a live disk, but if you already has a running linux skip to Phase 01 section
 
 #### Downloading Arch Linux live CD/DVD image
 
 1. Go to Arch Linux downloads page https://archlinux.org/download/ but if 
-   you already has a running linux skip step 01 and go to the section 1 below.
+   **you already has a running linux then skip and go to the Phase 01** below.
 
-2. Find **HTTP Direct Downloads** section and choose any download mirror.
-   Select a mirror that is geographically closer to your location.
+2. Find a download type, HTTP direct downloads are prefered for command line!
 
-3. On the mirror page find archive named like `archlinux-2025.MM.DD-x86_64.iso` 
-   or `archlinux-x86_64.iso`  or any other file with `.iso` suffix. Other files 
-   (like _.txt_, _.tar.gz_ and even _.iso.sig_) are not needed for installation 
-   process.
+3. On the mirror page find archive named like `archlinux-2026.MM.DD-x86_64.iso` 
+   or `archlinux-x86_64.iso`  or any other file ended with `.iso` suffix.
 
 #### Preparing live linux installation medium
 
-*. Insert a USB-stick into your PC with at least 2Gb of space available on it. 
-    You can also use a blank cd/dvd/bd rom and burn the iso image, or load into 
-    the qemu cderom slot!
+* If you already has a running linux skip to Phase 01 section to install.
+   If you use qemu just put/set the iso file into the cdrom slot.
 
 * If you use USB stick, download https://github.com/balena-io/etcher/releases 
-   and record the ISO downloaded image into the USB stick.
+   and record the ISO downloaded image into the USB stick or use `dd`.
 
 * If you use CD/DVD rom, put the black disc into the optical device of your 
    computer device, and then open the burn software to record the image on!
 
 #### Boot into Arch Linux live medium
 
-* Insert the installation medium into the computer on which you wants install 
-   Arch Linux. If you use qemu just put the iso file into the cdrom slot.
+* If you already has a running linux skip to Phase 01 section to install, 
+   If you use qemu just put/set the iso file into the cdrom slot.
 
-* Power on your PC and press _boot menu key_. For most vendor based original, 
-   this key is `F12`. For clones computers this could be `ESC` or `F1`.
+* Insert the installation medium/usb/disk into the computer on which you wants
+   to install Arch Linux (or qemu settings confguration).
+
+* Power on your PC and press _boot menu key_. For most original vendor based, 
+   this key is `F12`. For clones computers this could be `ESC` or `F1` or `Del`.
 
 * Boot from CD/DVD/USB and wait until boot process is finished.
-   take note **Secure boot** option need to be turned off it in your BIOS.
+   take note **Secure boot** option need to be turned off in your BIOS.
 
 ## Phase 01: Installation setup
 
-Arch linux comes with **the famous `arch-install` script, we will avoid it** 
-because we will setup disk partition layout and advanced formating.
+We will use boostrap procedure
 
-#### Step 01: Use the live medium or use the running linux
+#### Step 01: Preconfiguring the live or running linux
 
-This also works for instalation inside another linux. How? easy, just using 
-the another linux start from the disk partitioning step and that is all.
+* **1**. In **your running linux or live medium** must have installed those packages:
 
-* **1**. In **your linux or live medium must have installed following packages**:
+   * arch-install-script >= 28 https://gitlab.archlinux.org/archlinux/arch-install-scripts/-/releases
+   * coreutils >= v8.15 https://www.gnu.org/software/coreutils/#download
+   * util-linux >= 2.39 https://www.kernel.org/pub/linux/utils/util-linux/
+   * gawk or awk https://ftp.gnu.org/gnu/gawk/
+   * bash >= 4.1 http://tiswww.case.edu/php/chet/bash/bashtop.html#Availability
+   * dosfstools (EFI mounting partition) https://github.com/dosfstools/dosfstools/releases
+   * pacman-package-manager > 5 https://gitlab.archlinux.org/pacman/pacman/-/releases
 
-* arch-install-script >= 28 https://gitlab.archlinux.org/archlinux/arch-install-scripts/-/releases
-* pacman-package-manager > 5 https://gitlab.archlinux.org/pacman/pacman/-/releases
-* makepkg + archlinux-keyring https://gitlab.archlinux.org/pacman/pacman/-/releases
-* coreutils >= v8.15 https://www.gnu.org/software/coreutils/#download
-* util-linux >= 2.39 https://www.kernel.org/pub/linux/utils/util-linux/
-* gawk or awk https://ftp.gnu.org/gnu/gawk/
-* bash >= 4.1 http://tiswww.case.edu/php/chet/bash/bashtop.html#Availability
-* dosfstools (EFI mounting partition) https://github.com/dosfstools/dosfstools/releases
-
-* **2**. Then if you have this packages in any linux do the necesary configs 
-(those are not necesary if you are running ArchLinux from live disc), so then 
-run as root user following commands in the current running/live linux:
+* **2**. Minimal Pacman configurations for base bootstrap, run as root user:
 
 ```
 pacman-key --init
@@ -98,10 +76,9 @@ pacman-key --populate archlinux
 cat > /etc/pacman.conf << EOF
 [options]
 HoldPkg = pacman glibc
-Architecture = auto
-CheckSpace
-ParallelDownloads = 5
+Architecture = x86_64
 SigLevel = Never
+LocalFileSigLevel = Never
 
 [core]
 Include = /etc/pacman.d/mirrorlist
@@ -110,40 +87,23 @@ Include = /etc/pacman.d/mirrorlist
 Include = /etc/pacman.d/mirrorlist
 EOF
 
-mkdir /etc/pacman.d/mirrorlist
+mkdir -p /etc/pacman.d
 
 cat > /etc/pacman.d/mirrorlist << EOF
 Server = http://mirror.csclub.uwaterloo.ca/archlinux/\$repo/os/\$arch
+Server = http://mirrors.sonic.net/archlinux/\$repo/os/\$arch
 EOF
 ```
 
-#### Step 02: networking and sync packages
-
-* **3**  Arch linux need internet connection, to sync package originis, 
-Also skip to next if your linux must be configured in another way! so 
-Connect to Network, **if you have wired network, is automatically**, 
-for WiFi just using `iwctl` and check connection is established as root user:
-
-```
-iwctl
-
-station wlan0 get-networks
-
-station wlan0 connect
-
-exit
-
-ping 1.1.1.1
-```
-
-* **4** Synchronize pacman packaes by runing the following command as root user:
+* **3** Synchronize pacman packages, run command as root user:
 
 ```
 pacman -Syu
 ```
 
+> **Warning**: you must already have internet connection configued!
 
-#### Step 03: Disk partitioning
+#### Step 02: Disk partitioning
 
 * **5** Partition the main storage device using `fdisk` utility. You can find 
 storage device name using `lsblk -o NAME,MODEL,SIZE` command. Run as root user:
@@ -164,13 +124,13 @@ Last sector ...: <b>+512M</b>
 Command (m for help): <b>n</b>
 Partition number (2-128, default 2): <b>Enter &crarr;</b>
 First sector (..., default ...): <b>Enter &crarr;</b>
-Last sector ...: <b>+64G</b> <i>AT least double your RAM size</i>
+Last sector ...: <b>+128G</b> <i>The root directory of OS</i>
 <span />
                 <i>[create partition 3: swap]</i>
 Command (m for help): <b>n</b>
 Partition number (3-128, default 3): <b>Enter &crarr;</b>
 First sector (..., default ...): <b>Enter &crarr;</b>
-Last sector ...: <b>+8G</b> <b>Enter &crarr;</b>
+Last sector ...: <b>+8G</b> <b>At leas double your ram or minimal 8G swap;</b>
 <span />
                 <i>[create partition 4: home]</i>
 Command (m for help): <b>n</b>
@@ -197,14 +157,16 @@ Command (m for help): <b>w</b>
 </pre>
 </dd></dl>
 
-### Step 04: Create filesystem and mounting partitions
+> **Warning**: Partition 4 will use the rest of the disk; it is **recommended** that you do not use all of it but **leave at least 8 megabytes free at the end** of the disk.
+
+### Step 03: Create filesystem on partitions
 
 * **6** Create filesystems on disk partitions, run as root user those commands:
 
 ```
-mkfs.fat -F 32 -S 1024 -n EFI /dev/nvme0n1p1
+mkfs.fat -F 32 -S 2048 -n EFI /dev/nvme0n1p1
 
-mkfs.ext4 -b 1024 -L ROOTAR /dev/nvme0n1p2
+mkfs.ext4 -L ROOTAR /dev/nvme0n1p2
 
 tune2fs -O "^encrypt" /dev/nvme0n1p2
 
@@ -212,27 +174,29 @@ tune2fs -O "^quota" /dev/nvme0n1p2
 
 mkswap -L SWAPAR /dev/nvme0n1p3
 
-mkfs.ext4 -b 1024 -L HOMEAR /dev/nvme0n1p4
+mkfs.ext4 -L HOMEAR /dev/nvme0n1p4
 
 tune2fs -O "^encrypt" /dev/nvme0n1p4
 
 tune2fs -O "^quota" /dev/nvme0n1p4
 ```
 
+### Step 04: Mounting partitions to target installation
+
 * **7** Mount all filesystems to the `/mnt` in running linux as root user:
 
 ```
 mkdir -p /mnt
 
-mount -t ext4 -o rw,relatime,exec,dev,suid,barrier=0,errors=remount-ro,commit=1800 /dev/nvme0n1p2 /mnt
+mount -t ext4 -o rw,relatime,exec,dev,suid,barrier=0,errors=remount-ro,commit=900,nofail /dev/nvme0n1p2 /mnt
 
 mkdir -p /mnt/boot/efi /mnt/home
 
-mount -t vfat -o rw,umask=0077,iocharset=ascii,shortname=mixed /dev/nvme0n1p1 /mnt/boot/efi
+mount -t vfat -o rw,umask=0077,iocharset=ascii,shortname=mixed,nofail /dev/nvme0n1p1 /mnt/boot/efi
 
-mount -t ext4 -o rw,noatime,exec,nodev,nosuid,barrier=0,errors=remount-ro,commit=1800 /dev/nvme0n1p4 /mnt/home
+mount -t ext4 -o rw,relatime,exec,nodev,nosuid,barrier=0,errors=remount-ro,commit=1800,nofail /dev/nvme0n1p4 /mnt/home
 
-swapon /dev/nvme0n1p3
+swapon -o pri=1,nofail /dev/nvme0n1p3
 ```
 
 ### Step 05: Installing the base system
@@ -240,7 +204,7 @@ swapon /dev/nvme0n1p3
 * **8** Create base system into new filesystem and generate fstab, run as root:
 
 ```
-pacstrap -i /mnt base nano iptables
+pacstrap -i /mnt base nano iptables bash
 
 genfstab -U -p /mnt > /mnt/etc/fstab
 ```
@@ -253,10 +217,8 @@ genfstab -U -p /mnt > /mnt/etc/fstab
 arch-chroot /mnt
 ```
 
-* **10** The console terminal will look similar or equal BUT IS NOT THE SAME, 
-cos now you are inside the new installed system linux, the process allows to 
-use the new filesystem of the new linux but limited, so then run those commands 
-inside the "chrooted" environment:
+* **10** now you are **inside the new installed system linux, then run** those 
+commands inside the "chrooted" environment:
 
 ```
 pacman -Syu --noconfirm linux-lts linux-lts-headers linux-firmware mkinitcpio \
@@ -264,7 +226,7 @@ pacman -Syu --noconfirm linux-lts linux-lts-headers linux-firmware mkinitcpio \
  doas arch-install-scripts
 ```
 
-* **11** Still inside "chrooted" setup locale, clock and timezone, run those commands:
+* **11** Still inside "chrooted" setup locale, clock and timezone, run:
 
 ```
 pacman -Syu --noconfirm sed
@@ -280,18 +242,18 @@ ln -sf /usr/share/zoneinfo/America/Panama /etc/localtime
 hwclock --systohc
 ```
 
-* **12** Still inside "chrooted" setup system hostname by run those commands:
+* **12** Still inside "chrooted" setup system hostname by run:
 
 ```
-echo archisshit > /etc/hostname
+echo venenux > /etc/hostname
 
 cat > /etc/hosts << EOF
 127.0.0.1 localhost
 ::1       localhost
-127.0.1.1 archisshit
+127.0.1.1 venenux
 EOF
 
-hostnamectl set-hostname archisshit
+hostnamectl set-hostname venenux
 ```
 
 ### Step 07: Basic configuration elevation privilegies and users
@@ -303,9 +265,9 @@ pacman -S --noconfirm bash
 
 useradd -m -G audio,video,disk,games,users,network,input,optical -s /bin/bash general
 
-passwd root
+echo "root:newpass" | chpasswd
 
-passwd general
+echo "general:newpass" | chpasswd
 ```
 
 * **14** Still inside "chrooted" setup elevation "doas" privilegies by run:
@@ -315,18 +277,18 @@ pacman -Syu --noconfirm doas
 
 cat > /etc/doas.conf << EOF
 permit nopass root
-permit nopass :wheel
+permit :wheel
 permit general
 EOF
 ```
 
 ## Phase 02: Booting configuration setup
 
-We will only use grub and UEFI, for BIOS just don use the EFI parameters!
+We will only use grub and UEFI, for BIOS just dont use the EFI parameters!
 
 ### Step 08: Configuring boot of the new system
 
-* **15** Still inside "chrooted" install network minimal environment for next boot:
+* **15** Still inside "chrooted" install network environment for next boot:
 
 ```
 pacman -S --noconfirm dhcpcd networkmanager systemd-resolvconf openssh libfido2
@@ -334,7 +296,7 @@ pacman -S --noconfirm dhcpcd networkmanager systemd-resolvconf openssh libfido2
 systemctl enable NetworkManager systemd-resolved sshd
 ```
 
-* **16** Still inside "chrooted" install and configure EFI using GRUB manager:
+* **16** Still inside "chrooted" install and configure EFI and GRUB manager:
 
 ```
 pacman -S --noconfirm efibootmgr grub os-prober
@@ -354,57 +316,47 @@ umount /mnt/boot/efi
 umount /mnt/home
 
 umount /mnt
-
-reboot
 ```
 
 ## Phase 03: Configuring userspace initial system startup
 
-The base system and boot are set, but now we alredy need/have this:
+The base system and boot are set, but now we alredy need/have minimal desktop
 
-* Already pass and performs all of the section 1 above!
-* Reboot and start in your new disk with Arch Linux installation.
-* We assumed the networking setup from previous sectioin!
-* Install the `opendoas` package with `pacman -S opendoas doas`
-* login with the user `general` we configured previously
+* **18** Chroot again into created filesystem by remount and run:
 
-### Step 09: Basic configuration of userspace
+```
+mkdir -p /mnt
 
-* **18** Activate time syncronization using NTP:
+mount -t ext4 -o rw,relatime,exec,dev,suid,barrier=0,errors=remount-ro,commit=900 /dev/nvme0n1p2 /mnt
+
+mkdir -p /mnt/boot/efi /mnt/home
+
+mount -t vfat -o rw,umask=0077,iocharset=ascii,shortname=mixed /dev/nvme0n1p1 /mnt/boot/efi
+
+mount -t ext4 -o rw,relatime,exec,nodev,nosuid,barrier=0,errors=remount-ro,commit=1800 /dev/nvme0n1p4 /mnt/home
+
+arch-chroot /mnt
+```
+
+### Step 09: Basic configuration utilities and userspace
+
+* **19** Inside chroot or after first boot enable time syncronization by NTP:
 
 ```
 timedatectl set-ntp true
 ```
 
-* **19** Install minimal administrative packages
+* **20** Inside chroot or after first boot install base administrative utilities
 
 ```
-pacman -S --noconfirm mc cabextract gawk 7zip zip doas coreutils nano nawk elfutils
-```
-
-* **20** Install common desktop utilities, console utilities
-
-```
-pacman -Syu --noconfirm --needed doas lesspipe perl xz ncurses nano \
- cabextract gawk tar 7zip unace unarj unrar unzip zip doas bash coreutils \
- dialog intel-ucode fuse3 lshw powertop acpi htop tree socat lsof unhide \
- wget rsync aria2 base-devel git less groff bash-completion unhide rkhunter \
- dbus psmisc tcpdump mtr net-tools ethtool openbsd-netcat procps-ng \
- alsa-oss alsa-plugins alsa-ucm-conf sof-firmware alsa-firmware \
- pulseaudio pulsemixer pulseaudio-alsa gxmessage libcanberra \
- otf-atkinson-hyperlegible ttf-atkinson-hyperlegible otf-droid-nerd \
- libfm-extra libfm-gtk3 gtk3 gvfs pango cairo jgmenu perl-net-dbus xdg-utils \
- pcmanfm sakura lxappearance uget notification-daemon scrot gsimplecal xarchiver \
- parcellite perl-x11-protocol xorg-xprop xdotool xorg-xwininfo gprename \
- accountsservice hicolor-icon-theme
+pacman -S --noconfirm mc cabextract gawk 7zip zip coreutils nano nawk elfutils
 ```
 
 * **21** Compresion and archiving utilities
 
 ```
 pacman -Syu --noconfirm arj binutils bzip2 cpio gzip lhasa lrzip lz4 7zip tar \
- xz zstd unarj unzip unrar libunrar rarcrack \
- atool file
+ xz zstd unarj unzip unrar libunrar rarcrack atool file
 ```
 
 * **22** Filesystems support for external storage devices
@@ -412,6 +364,20 @@ pacman -Syu --noconfirm arj binutils bzip2 cpio gzip lhasa lrzip lz4 7zip tar \
 ```
 pacman -Syu --noconfirm exfatprogs dosfstools f2fs-tools e2fsprogs ntfs-3g \
  erofs-utils squashfs-tools udftools xfsprogs
+```
+
+* **23** If you are inside chroot, then umount and restart
+
+```
+exit
+
+umount /mnt/boot/efi
+
+umount /mnt/home
+
+umount /mnt
+
+reboot
 ```
 
 ### Step 10 enable the AUR repository management and makepkg
@@ -435,13 +401,13 @@ cd yay && makepkg && rm yay-debug*zst
 
 doas pacman -U --noconfirm ~/Devel/yay/yay*.zst
 
-cd ~/Devel && git clone https://aur.archlinux.org/doas-sudo-shim-k.git
+yay -Syu doas-sudo-shim
+```
 
-cd doas-sudo-shim-k && makepkg && rm -f doas-debug*zst
+Now lest configure the most important file of AUR packages: `/etc/makepkg.conf` 
+lest create specific compilation directory (you can use separate disk then):
 
-doas pacman -R --noconfirm sudo base-devel
-
-doas pacman -U --noconfirm ~/Devel/doas-sudo-shim-k/doas-sudo-shim-k*.zst
+```
 
 doas mkdir -p /usr/src/makepkg
 
@@ -450,14 +416,15 @@ doas pacman -Syu base-devel git go
 doas chown general:wheel /usr/src/makepkg
 
 doas chmod 775 /usr/src/makepkg
-```
+````
 
-Now lest configure themost important file of AUR packages, the `/etc/makepkg.conf`
-This cannot be done using a command, so you must open the file for editing:
-`doas nano /etc/makepkg.conf`  and then sustitute all the contents with this:
+Becouse cannot be done using a command, so you must open the file for 
+editing with `doas nano /etc/makepkg.conf` and **then sustitute contents**:
 
 ``` bash
 #!/hint/bash
+# shellcheck disable=2034
+
 DLAGENTS=('file::/usr/bin/curl -qgC - -o %o %u'
           'ftp::/usr/bin/curl -qgfC - --ftp-pasv --retry 3 --retry-delay 3 -o %o %u'
           'http::/usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o %o %u'
@@ -506,9 +473,12 @@ COMPRESSLZ4=(lz4 -q)
 COMPRESSLZ=(lzip -c -f)
 PKGEXT='.pkg.tar.zst'
 SRCEXT='.src.tar.gz'
+PACMAN_AUTH=(doas)
 ```
 
-The tuned part here you cna change is `march` and `tune` change `generic` with 
+> **Warning** save it using `CRTL+X` and then `Y`
+
+The tuned part here you can change is `march` and `tune` change `generic` with 
 the arch spcific cpu of your computer.
 
 * **HOW TO DETERMINE `-march` BEST VALUE:
@@ -523,39 +493,58 @@ gcc -march=native -Q --help=target | grep -- '-march=' | cut -f3 | head -n1
 gcc -mtune=native -Q --help=target | grep -- '-mtune=' | cut -f3 | head -n1
 ```
 
+Take the values of "march" and "mtune"  and use it on the makepkg.conf file, 
+by change the word "generic" with those values.
+
 ### Step 11: tuneup the hardware support
 
-> **WARNING**: this section just improve the hardware support for better desktop experience
-
-1. **Extend hardware support**
+1. **Extend hardware support** by savin life of SSD with usage of log2ram, 
+   management of network devices and linux underliying utilites
 
 ```
 su general
 
 yay -Syu --noconfirm wpa_supplicant os-prober grub ntfs-3g dkms \
- psmisc ncurses procps-ng net-tools rkhunter unhide alsa-utils \
- lshw acpi htop tree socat lsof unhide psmisc usb_modeswitch \
- libgudev udisks2 log2ram bluez bluez-utils blueman arandr upower
+ ncurses procps-ng net-tools netdiscover rkhunter nmap vulscan netdiscover \
+ lshw acpi htop tree socat lsof unhide psmisc usb_modeswitch alsa-utils \
+ libgudev udisks2 log2ram bluez bluez-utils blueman arandr upower sane
 
 doas systemctl enable bluetooth
 
 doas systemctl enable log2ram.service log2ram-daily.timer
 ```
 
-1. **Refine boot initrd and hibernation support** We wil use the first partition 
-   only, if another one, must be configured manually, those steps only setup 
-   automatically the first one! We will detect SWAP partition and then..
-   Open GRUB configuration file and add resume UUID to the line boot, 
-   all of those commands must be run as root and not using `sudo` or `doas` 
-   becouse the variable expansion will not be parsed to `GRUB_CMDLINE_LINUX_DEFAULT`
-   so then you can hibernate your system using: `systemctl hibernate`.
-   Be carefully, all of this is outside of secure boot, so disable it!
-
-> Warning: &#128161; Those hooks dont assume encripted filesystems, neither raid setups!
-
-> Warning: &#128161; all of those commands cannot be run using `sudo` or `doas`
+1. **Improve performance** by scaling frecuency processor
 
 ```
+yay -Syu cpupower
+
+doas echo passive > /sys/devices/system/cpu/intel_pstate/status
+
+doas sed -i s/.*GOVERNOR=.*/GOVERNOR=performance/ /etc/default/cpupower-service.conf
+
+doas sed -i s/.*PERF_BIAS=.*/PERF_BIAS=4/ /etc/default/cpupower-service.conf
+
+doas sed -i s/.*EPP=.*/EPP=balance_performance/ /etc/default/cpupower-service.conf
+
+doas systemctl enable cpupower
+
+doas systemctl start cpupower
+
+doas cpupower -c all set -b 4 -e performance -t 1
+
+doas systemctl stop power-profiles-daemon.service
+
+doas systemctl mask power-profiles-daemon.service
+```
+
+3. **Refine boot initrd and hibernation support** using the first partition 
+   only, detect first SWAP partition and then.. all of this is outside 
+   of secure boot, so disable it! No encripted fs neither raid setups!
+
+```
+doas su
+
 grep swap /etc/fstab | sed 's/   */:/g' | cut -d: -f1 | cut -f1 | cut -d' ' -f1 | grep -v "#" | head -n1
 
 sed -i s/HOOKS.*/"HOOKS=(base udev systemd resume keyboard autodetect microcode modconf kms block filesystems)"/ /etc/mkinitcpio.conf
@@ -586,7 +575,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
 2. **Enable printing support on your PC**: also optionally install hp plugins 
-   for firmware updates b using `doas hpsetup -i`
+   for firmware updates by using `doas hpsetup -i`
 
 ```
 doas pacman -S --noconfirm cups cups-filters cups-pdf system-config-printer
@@ -601,8 +590,7 @@ doas cups-genppdupdate
 ```
 
 3. **[Optional] Improve laptop battery usage with TLP** - 
-   this utility that basically does kernel settings tweaking but over desktops 
-   machines will decrease performance.. **only use if you are on laptop** 
+   only use this if you are on laptop, or will decrease performance..
 
 ```
 doas pacman -S --noconfirm tlp tlp-rdw
@@ -616,8 +604,8 @@ doas systemctl mask systemd-rfkill.service
 doas systemctl mask systemd-rfkill.socket
 ```
 
-4. **[Optional] use avahi services to auto discover devices**, you can browse 
-   manually by run `avahi-browse --all` aftyer avahi setup and install:
+4. **[Optional] use avahi services to auto discover devices**, you 
+   can browse manually by run `avahi-browse --all`:
 
 ```
 doas pacman -S --noconfirm avahi nss-mdns
@@ -629,9 +617,26 @@ doas systemctl enable avahi-daemon.service
 doas systemctl start avahi-daemon.service
 ```
 
-## Section 03: Userspace desktop setup
+## Section 03: Userspace basic desktop
 
-1. Enable wordlist and dictionary support on system
+1. Install common desktop utilities, console utilities
+
+```
+pacman -Syu --noconfirm --needed doas lesspipe perl xz ncurses nano \
+ cabextract gawk tar 7zip unace unarj unrar unzip zip doas bash coreutils \
+ dialog intel-ucode fuse3 lshw powertop acpi htop tree socat lsof unhide \
+ wget rsync aria2 base-devel git less groff bash-completion unhide rkhunter \
+ psmisc tcpdump mtr net-tools ethtool openbsd-netcat procps-ng gnome-nettool \
+ dbus alsa-oss alsa-plugins alsa-ucm-conf sof-firmware alsa-firmware \
+ pulseaudio pulsemixer pulseaudio-alsa gxmessage libcanberra \
+ otf-atkinson-hyperlegible ttf-atkinson-hyperlegible otf-droid-nerd \
+ libfm-extra libfm-gtk3 gtk3 gvfs pango cairo jgmenu perl-net-dbus xdg-utils \
+ pcmanfm sakura lxappearance uget notification-daemon scrot gsimplecal xarchiver \
+ parcellite perl-x11-protocol xorg-xprop xdotool xorg-xwininfo gprename \
+ accountsservice hicolor-icon-theme openbox
+```
+
+2. Enable wordlist and dictionary support on system
 
 ```
 pacman -S --noconfirm aspell hunspell nano \
@@ -639,25 +644,10 @@ pacman -S --noconfirm aspell hunspell nano \
  hunspell-en_us hunspell-en_gb hunspell-es_ve hunspell-es_ar hunspell-ru \
  hyphen-en hyphen-de hyphen-fr hyphen-it hyphen-nl hunspell-es_mx hunspell-es_pa \
  mythes-en mythes-de mythes-fr mythes-it mythes-nl mythes-pl
- 
 ```
 
+For better desktop focused setup use: [arch-desktop-openbox.md](arch-desktop-openbox.md)
 
-Se next tutorial: [arch-desktop-openbox.md](arch-desktop-openbox.md)
-
-## Warning and advertices
-
-> **Warning**: we will use GPT table, otherwise use "o" instead of "g".
-
-> **Warning**: we will use `/dev/nvme0n1` as diskdrive, could be `/dev/sda`.
-
-> **Warning**: format with 1k sector sizes its for performance of small files
-
-> **Warning**: we use `wlan0` for example, but check with `ip add` command.
-
-> Warning: &#128161; this will use the running linux as fake new linux install, 
-it means that mounted filesystems in the running linux, will be used indirectly 
-as a new running linux. The ArchLinux will be installed in the partitions.
 
 
 
